@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -22,5 +23,10 @@ public class ItemController {
     @GetMapping("/items")
     public List<ItemResponse> getList(@ModelAttribute ItemSearch itemSearch){
         return itemService.getList(itemSearch);
+    }
+
+    @GetMapping("/items/{itemId}")
+    public ItemResponse get(@PathVariable Long itemId){
+        return itemService.get(itemId);
     }
 }

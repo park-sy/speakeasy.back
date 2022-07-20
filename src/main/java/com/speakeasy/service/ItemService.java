@@ -2,6 +2,7 @@ package com.speakeasy.service;
 
 
 import com.speakeasy.domain.Item;
+import com.speakeasy.exception.ItemNotFound;
 import com.speakeasy.repository.ItemRepository;
 import com.speakeasy.request.ItemSearch;
 import com.speakeasy.response.ItemResponse;
@@ -25,4 +26,15 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
+    public ItemResponse get(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(ItemNotFound::new);
+        return ItemResponse.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .incense(item.getIncense())
+                .note(item.getNote())
+                .season(item.getSeason())
+                .build();
+    }
 }

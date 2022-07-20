@@ -44,8 +44,8 @@ class ItemServiceTest {
 
         Assertions.assertEquals(1L,itemRepository.count());
         Item item = itemRepository.findAll().get(0);
-        assertEquals("제목입니다.", item.getName());
-        assertEquals("내용입니다.", item.getIncense());
+        assertEquals("상품", item.getName());
+        assertEquals("향.", item.getIncense());
     }
 
     @Test

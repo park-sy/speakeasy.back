@@ -11,15 +11,24 @@ import static java.lang.Math.min;
 //페이지서치를 위한 클래스 구현
 @Getter //getter, setter 사용
 @Setter
-@Builder //빌더패턴 사용
 public class ItemSearch {
 
     private static final int MAX_SIZE = 2000;
 
-    @Builder.Default //인자가 없을 시 1페이지 로드
-    private Integer page = 1;
-    @Builder.Default //인자가 없을 시 페이지당 10개의 아이템 로드
-    private Integer size = 10;
+
+    private Integer page;
+    private Integer size;
+
+    private String note;
+    private String incense;
+
+    @Builder
+    public ItemSearch(Integer page, Integer size, String note, String incense) {
+        this.page = page == null ? 1 : page;
+        this.size = size == null ? 10 :size;
+        this.note = note;
+        this.incense = incense;
+    }
 
     public long getOffset(){
         //페이지 0이 요청될 시 1페이지 반환

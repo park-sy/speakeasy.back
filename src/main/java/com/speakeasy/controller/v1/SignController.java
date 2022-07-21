@@ -23,6 +23,7 @@ public class SignController {
 
     private final UserRepository userJpaRepo;
     private final JwtTokenProvider jwtTokenProvider;
+
     private final ResponseService responseService;
     private final PasswordEncoder passwordEncoder;
 

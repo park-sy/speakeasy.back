@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class SignService {
     private final UserRepository userRepository;
     //lombok을 통해 requireArg로 생성자로 만듦
 

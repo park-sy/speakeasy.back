@@ -2,7 +2,7 @@ package com.speakeasy.controller.v1;
 
 
 import com.speakeasy.domain.User;
-import com.speakeasy.exception.CUserNotFoundException;
+import com.speakeasy.exception.UserNotFoundException;
 import com.speakeasy.repository.UserRepository;
 import com.speakeasy.response.CommonResult;
 import com.speakeasy.response.ListResult;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/v1")
+@RequestMapping(value = "/api")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -33,7 +33,7 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String id = authentication.getName();
         // 결과데이터가 단일건인경우 getSingleResult를 이용해서 결과를 출력한다.
-        return responseService.getSingleResult(userRepository.findByUid(id).orElseThrow(CUserNotFoundException::new));
+        return responseService.getSingleResult(userRepository.findByUid(id).orElseThrow(UserNotFoundException::new));
     }
 
     @PutMapping(value = "/user")
@@ -42,7 +42,7 @@ public class UserController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String id = authentication.getName();
-        User user = userRepository.findByUid(id).orElseThrow(CUserNotFoundException::new);
+        User user = userRepository.findByUid(id).orElseThrow(UserNotFoundException::new);
         user.setName(name);
         return responseService.getSingleResult(userRepository.save(user));
     }

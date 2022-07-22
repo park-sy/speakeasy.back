@@ -2,10 +2,9 @@ package com.speakeasy.service;
 
 
 import com.google.gson.Gson;
-
-import com.speakeasy.exception.CCommunicationException;
-import com.speakeasy.model.KakaoProfile;
-import com.speakeasy.model.RetKakaoAuth;
+import com.speakeasy.domain.KakaoProfile;
+import com.speakeasy.exception.CommunicationException;
+import com.speakeasy.response.KakaoAuth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -46,26 +45,31 @@ public class KakaoService {
             if (response.getStatusCode() == HttpStatus.OK)
                 return gson.fromJson(response.getBody(), KakaoProfile.class);
         } catch (Exception e) {
-            throw new CCommunicationException();
+            throw new CommunicationException();
         }
-        throw new CCommunicationException();
+        throw new CommunicationException();
     }
 
-    public RetKakaoAuth getKakaoTokenInfo(String code) {
+    public KakaoAuth getKakaoTokenInfo(String code) {
         // Set header : Content-type: application/x-www-form-urlencoded
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        // Set parameter
+
+        // Set parameter => key, value
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoClientId);
         params.add("redirect_uri", baseUrl + kakaoRedirect);
         params.add("code", code);
+
         // Set http entity
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(env.getProperty("spring.social.kakao.url.token"), request, String.class);
+        ResponseEntity<String> response = restTemplate
+                .postForEntity(env.getProperty("spring.social.kakao.url.token"), request, String.class);
+                //restTemplate으로 post 방식으로 key를 요청할 수 있음.
+        System.out.println(response);
         if (response.getStatusCode() == HttpStatus.OK) {
-            return gson.fromJson(response.getBody(), RetKakaoAuth.class);
+            return gson.fromJson(response.getBody(), KakaoAuth.class);
         }
         return null;
     }

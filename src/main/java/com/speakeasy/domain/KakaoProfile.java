@@ -1,4 +1,4 @@
-package com.speakeasy.model;
+package com.speakeasy.domain;
 
 import lombok.Getter;
 import lombok.Setter;

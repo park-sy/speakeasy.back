@@ -1,11 +1,11 @@
-package com.speakeasy.model;
+package com.speakeasy.response;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class RetKakaoAuth {
+public class KakaoAuth {
     private String access_token;
     private String token_type;
     private String refresh_token;

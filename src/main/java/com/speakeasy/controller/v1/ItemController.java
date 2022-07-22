@@ -2,6 +2,7 @@ package com.speakeasy.controller.v1;
 
 
 import com.speakeasy.request.ItemSearch;
+import com.speakeasy.response.ItemDetailResponse;
 import com.speakeasy.response.ItemResponse;
 import com.speakeasy.service.ItemService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class ItemController {
     }
 
     @GetMapping("/items/{itemId}")
-    public ItemResponse get(@PathVariable Long itemId){
+    public ItemDetailResponse get(@PathVariable Long itemId){
         return itemService.get(itemId);
     }
 }

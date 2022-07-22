@@ -7,21 +7,14 @@ import lombok.Getter;
 //응답 처리를 위한 클래스 생성
 @Getter
 public class ItemResponse {
-
+    private final String path = "/resources/static/img/";
     private final Long id;
     private final String name;
     private final String note;
     private final String incense;
     private final String season;
+    private final String mainImg;
 
-    //생성자 오버로딩
-    public ItemResponse(Item item) {
-        this.id = item.getId();
-        this.name = item.getName();
-        this.note = item.getNote();
-        this.incense = item.getIncense();
-        this.season = item.getSeason();
-    }
 
     @Builder //빌더 패턴 새용
     public ItemResponse(Long id, String name, String note, String incense, String season) {
@@ -30,6 +23,15 @@ public class ItemResponse {
         this.note = note;
         this.incense = incense;
         this.season = season;
+        this.mainImg = path+name+"main.jpg";
     }
 
+    public ItemResponse(ItemResponse itemResponse) {
+        this.id = itemResponse.getId();
+        this.name = itemResponse.getName();
+        this.note = itemResponse.getNote();
+        this.incense = itemResponse.getIncense();
+        this.season = itemResponse.getSeason();
+        this.mainImg = path+itemResponse.getName()+"main.jpg";
+    }
 }

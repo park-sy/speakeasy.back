@@ -36,8 +36,6 @@ class ItemServiceTest {
     void test1(){
         Item requestItem = Item.builder()
                 .name("상품")
-                .note("노트")
-                .incense("향")
                 .season("계절").build();
 
         itemRepository.save(requestItem);
@@ -45,7 +43,7 @@ class ItemServiceTest {
         Assertions.assertEquals(1L,itemRepository.count());
         Item item = itemRepository.findAll().get(0);
         assertEquals("상품", item.getName());
-        assertEquals("향.", item.getIncense());
+        assertEquals("계절", item.getSeason());
     }
 
     @Test
@@ -55,9 +53,7 @@ class ItemServiceTest {
         List<Item> requestItems = IntStream.range(0,20)
                 .mapToObj(i -> Item.builder()
                         .name("상품 " +i)
-                        .note("노트 "+i)
-                        .incense("향"+i)
-                        .season("계절"+i)
+                        .season("계절 "+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
         ItemSearch itemSearch = ItemSearch.builder()

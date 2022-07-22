@@ -23,12 +23,14 @@ public class Item {
     private String note;
     private String incense;
     private String season;
+    private String base;
 
     @Builder //Builder 패턴 사용
-    public Item(String name, String note, String incense, String season) {
+    public Item(String name, String note, String incense, String season, String base) {
         this.name = name;
         this.note = note;
         this.incense = incense;
         this.season = season;
+        this.base = base;
     }
 }

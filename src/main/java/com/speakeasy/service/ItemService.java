@@ -5,6 +5,7 @@ import com.speakeasy.domain.Item;
 import com.speakeasy.exception.ItemNotFound;
 import com.speakeasy.repository.ItemRepository;
 import com.speakeasy.request.ItemSearch;
+import com.speakeasy.response.ItemDetailResponse;
 import com.speakeasy.response.ItemResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,20 +21,25 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
 
+//    public List<ItemResponse> getList(ItemSearch itemSearch){
+//        return itemRepository.getList(itemSearch).stream()
+//                .map(ItemResponse::new)
+//                .collect(Collectors.toList());
+//    }
+
     public List<ItemResponse> getList(ItemSearch itemSearch){
         return itemRepository.getList(itemSearch).stream()
                 .map(ItemResponse::new)
                 .collect(Collectors.toList());
     }
 
-    public ItemResponse get(Long itemId) {
+    public ItemDetailResponse get(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(ItemNotFound::new);
-        return ItemResponse.builder()
+
+        return ItemDetailResponse.builder()
                 .id(item.getId())
                 .name(item.getName())
-                .incense(item.getIncense())
-                .note(item.getNote())
                 .season(item.getSeason())
                 .build();
     }

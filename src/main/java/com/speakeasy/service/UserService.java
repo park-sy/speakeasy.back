@@ -6,6 +6,7 @@ import com.speakeasy.exception.UserNotFoundException;
 import com.speakeasy.repository.UserRepository;
 import com.speakeasy.request.UserSignIn;
 import com.speakeasy.request.UserSignUp;
+import com.speakeasy.response.KakaoProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,9 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     @Autowired
     private final PasswordEncoder passwordEncoder;
+    private final KakaoService kakaoService;
+
+
     public UserDetails loadUserByUsername(String userPk) {
         return userRepository.findById(Long.valueOf(userPk)).orElseThrow(UserNotFoundException::new);
     }
@@ -42,6 +46,12 @@ public class UserService implements UserDetailsService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new EmailSigninFailedException();
         }
+        return user;
+    }
+
+    public User kakaoLogin(String provider, String accessToken){
+        KakaoProfile profile = kakaoService.getKakaoProfile(accessToken);
+        User user = userRepository.findByUidAndProvider(String.valueOf(profile.getId()), provider).orElseThrow(UserNotFoundException::new);
         return user;
     }
 }

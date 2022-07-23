@@ -2,7 +2,7 @@ package com.speakeasy.service;
 
 
 import com.google.gson.Gson;
-import com.speakeasy.domain.KakaoProfile;
+import com.speakeasy.response.KakaoProfile;
 import com.speakeasy.exception.CommunicationException;
 import com.speakeasy.response.KakaoAuth;
 import lombok.RequiredArgsConstructor;
@@ -31,25 +31,9 @@ public class KakaoService {
     @Value("${spring.social.kakao.redirect}")
     private String kakaoRedirect;
 
-    public KakaoProfile getKakaoProfile(String accessToken) {
-        // Set header : Content-type: application/x-www-form-urlencoded
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("Authorization", "Bearer " + accessToken);
-
-        // Set http entity
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
-        try {
-            // Request profile
-            ResponseEntity<String> response = restTemplate.postForEntity(env.getProperty("spring.social.kakao.url.profile"), request, String.class);
-            if (response.getStatusCode() == HttpStatus.OK)
-                return gson.fromJson(response.getBody(), KakaoProfile.class);
-        } catch (Exception e) {
-            throw new CommunicationException();
-        }
-        throw new CommunicationException();
-    }
-
+    /**
+     * 엑세스 토큰을 가져옴
+     */
     public KakaoAuth getKakaoTokenInfo(String code) {
         // Set header : Content-type: application/x-www-form-urlencoded
         HttpHeaders headers = new HttpHeaders();
@@ -64,13 +48,41 @@ public class KakaoService {
 
         // Set http entity
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        //restTemplate으로 post 방식으로 key를 요청할 수 있음.
         ResponseEntity<String> response = restTemplate
                 .postForEntity(env.getProperty("spring.social.kakao.url.token"), request, String.class);
-                //restTemplate으로 post 방식으로 key를 요청할 수 있음.
-        System.out.println(response);
         if (response.getStatusCode() == HttpStatus.OK) {
             return gson.fromJson(response.getBody(), KakaoAuth.class);
         }
         return null;
     }
+
+    /**
+     * 엑세스 토큰으로 카카오 프로필 요청
+     */
+    public KakaoProfile getKakaoProfile(String accessToken) {
+        // Set header : Content-type: application/x-www-form-urlencoded
+
+        HttpHeaders headers = new HttpHeaders();
+
+        //헤더 설정, content type: form url형식으로 , Authorization : Bearer+accessToken으로
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        // Set http entity
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
+        try {
+            // Request profile
+            //env의 profile을 가져와서 이걸로 post 함
+            //restTemplate으로 post 방식으로 key를 요청할 수 있음.
+            ResponseEntity<String> response = restTemplate.postForEntity(env.getProperty("spring.social.kakao.url.profile"), request, String.class);
+            if (response.getStatusCode() == HttpStatus.OK)
+                return gson.fromJson(response.getBody(), KakaoProfile.class);
+        } catch (Exception e) {
+            throw new CommunicationException();
+        }
+        throw new CommunicationException();
+    }
+
 }

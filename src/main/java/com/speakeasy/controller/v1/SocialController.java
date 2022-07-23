@@ -37,12 +37,14 @@ public class SocialController {
     @Value("${spring.social.kakao.redirect}")
     private String kakaoRedirect;
 
-    
-    // 카카오 로그인 페이지, rest api 형식이므로 버튼만 나오도록
+
+    /**
+     * 카카카오 로그인 페이지, rest api 형식이므로 버튼만 나오도록
+     */
     @GetMapping
     public ModelAndView socialLogin(ModelAndView mav) {
-        
-        //카카오 로그인을 리퀘스트 생성
+
+//        카카오 로그인을 리퀘스트 생성
         StringBuilder loginUrl = new StringBuilder()
                 .append(env.getProperty("spring.social.kakao.url.login"))
                 .append("?client_id=").append(kakaoClientId)
@@ -50,7 +52,7 @@ public class SocialController {
                 .append("&redirect_uri=").append(baseUrl).append(kakaoRedirect);
 
         mav.addObject("loginUrl", loginUrl);
-        mav.setViewName("social/login");
+//        mav.setViewName("social/login");
         return mav;
     }
 
@@ -58,10 +60,12 @@ public class SocialController {
      * 카카오 인증 완료 후 리다이렉트 화면
      */
     @GetMapping(value = "/kakao")
-    public @ResponseBody KakaoAuth redirectKakao(@RequestParam String code) {
+    public @ResponseBody String redirectKakao(@RequestParam String code) {
 //        mav.addObject("authInfo", kakaoService.getKakaoTokenInfo(code));
 //        mav.setViewName("social/redirectKakao");
         KakaoAuth kakaoAuth = kakaoService.getKakaoTokenInfo(code);
-        return kakaoAuth;
+        System.out.println(kakaoService.getKakaoProfile(kakaoAuth.getAccess_token()));
+        return "로그인 profile 가져오기 완료";
     }
+
 }

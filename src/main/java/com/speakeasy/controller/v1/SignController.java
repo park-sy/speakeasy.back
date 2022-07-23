@@ -1,7 +1,7 @@
 package com.speakeasy.controller.v1;
 
 import com.speakeasy.config.security.JwtTokenProvider;
-import com.speakeasy.domain.KakaoProfile;
+import com.speakeasy.response.KakaoProfile;
 import com.speakeasy.domain.User;
 import com.speakeasy.exception.UserExistException;
 import com.speakeasy.exception.UserNotFoundException;
@@ -36,6 +36,8 @@ public class SignController {
 
     private final UserService userService;
     private final KakaoService kakaoService;
+
+
     @PostMapping(value = "/signin")
     public SingleResult<String> signin(@RequestBody @Valid UserSignIn request) {
         User user =userService.comparePassword(request);
@@ -58,7 +60,13 @@ public class SignController {
         userService.join(request);
         return responseService.getSuccessResult();
     }
-
+    @PostMapping(value = "/signin-kakao/{provider}")
+    public SingleResult<String> signinkakao(
+            @PathVariable String provider,
+            @RequestParam String accessToken) {
+        User user = userService.kakaoLogin(provider,accessToken);
+        return responseService.getSingleResult(jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles()));
+    }
     @PostMapping(value = "/signin/{provider}")
     public SingleResult<String> signinByProvider(
             @PathVariable String provider,
@@ -68,6 +76,7 @@ public class SignController {
         User user = userJpaRepo.findByUidAndProvider(String.valueOf(profile.getId()), provider).orElseThrow(UserNotFoundException::new);
         return responseService.getSingleResult(jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles()));
     }
+
     @PostMapping(value = "/signup/{provider}")
     public CommonResult signupProvider( @PathVariable String provider,
                                        @RequestParam String accessToken,

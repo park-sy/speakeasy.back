@@ -1,7 +1,9 @@
 package com.speakeasy.service;
 
 import com.speakeasy.domain.User;
+import com.speakeasy.exception.UserNotFoundException;
 import com.speakeasy.repository.UserRepository;
+import com.speakeasy.response.KakaoProfile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

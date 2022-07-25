@@ -5,10 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity  //데이터베이스에 사용될 entity를 정의
 @Getter  //getter 자동 선언
@@ -25,6 +23,9 @@ public class Item {
     private String season;
     private String base;
 
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OrderBy("id asc")
+    private List<ItemComment> comments ;
     @Builder //Builder 패턴 사용
     public Item(String name, String note, String incense, String season, String base) {
         this.name = name;
@@ -33,4 +34,6 @@ public class Item {
         this.season = season;
         this.base = base;
     }
+
+
 }

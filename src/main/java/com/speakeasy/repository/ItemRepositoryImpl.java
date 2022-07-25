@@ -52,6 +52,19 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
         return item.incense.in(incense);
     }
 
+//    private BooleanExpression goeMinPrice(Integer minPrice){
+//        if(minPrice == null){
+//            return null;
+//        }
+//        return item.minPrice.goe(minPrice);
+//    }
+    //    private BooleanExpression loeMinPrice(Integer minPrice){
+//        if(minPrice == null){
+//            return null;
+//        }
+//        return item.minPrice.loe(minPrice);
+//    }
+
 
 
 }

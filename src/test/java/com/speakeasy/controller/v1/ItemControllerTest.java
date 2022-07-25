@@ -132,4 +132,24 @@ class ItemControllerTest {
                 .andDo(print());
 
     }
+
+    @Test
+    @DisplayName("아이템 상세정보 이미지")
+    void test5() throws Exception {
+        //given
+        Item item = Item.builder()
+                .name("상품")
+                .season("계절").build();
+
+        itemRepository.save(item);
+
+        //expected
+        mockMvc.perform(get("/items/{itemId}/img",item.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(item.getId()))
+                .andExpect(jsonPath("$.name").value("상품"))
+                .andDo(print());
+
+    }
 }

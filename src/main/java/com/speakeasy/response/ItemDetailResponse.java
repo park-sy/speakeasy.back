@@ -1,7 +1,11 @@
 package com.speakeasy.response;
 
+import com.speakeasy.domain.Item;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -13,15 +17,19 @@ public class ItemDetailResponse {
     private final String incense;
     private final String season;
     private final String base;
+    private List<ItemCommentResponse> comments;
 
 
-    @Builder
-    public ItemDetailResponse(Long id, String name, String note, String incense, String season, String base) {
-        this.id = id;
-        this.name = name;
-        this.note = note;
-        this.incense = incense;
-        this.season = season;
-        this.base = base;
+
+    public ItemDetailResponse(Item item) {
+        this.id = item.getId();
+        this.name = item.getName();
+        this.note = item.getNote();
+        this.incense = item.getIncense();
+        this.season = item.getSeason();
+        this.base = item.getBase();
+        this.comments = item.getComments().stream()
+                .map(ItemCommentResponse::new)
+                .collect(Collectors.toList());
     }
 }

@@ -1,7 +1,12 @@
 package com.speakeasy.service;
 
 import com.speakeasy.domain.Item;
+import com.speakeasy.domain.ItemComment;
+import com.speakeasy.domain.ItemImages;
+import com.speakeasy.repository.ItemCommentRepository;
+import com.speakeasy.repository.ItemImgRepository;
 import com.speakeasy.repository.ItemRepository;
+import com.speakeasy.request.ItemCommentCreate;
 import com.speakeasy.request.ItemSearch;
 import com.speakeasy.response.ItemResponse;
 import org.junit.jupiter.api.Assertions;
@@ -12,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,6 +32,12 @@ class ItemServiceTest {
     @Autowired
     private ItemRepository itemRepository;
 
+    @Autowired
+    private ItemCommentRepository itemCommentRepository;
+
+    @Autowired
+    private ItemImgRepository itemImgRepository;
+
     @BeforeEach
     void clean(){
         itemRepository.deleteAll();
@@ -36,8 +48,6 @@ class ItemServiceTest {
     void test1(){
         Item requestItem = Item.builder()
                 .name("상품")
-                .note("노트")
-                .incense("향")
                 .season("계절").build();
 
         itemRepository.save(requestItem);
@@ -45,7 +55,7 @@ class ItemServiceTest {
         Assertions.assertEquals(1L,itemRepository.count());
         Item item = itemRepository.findAll().get(0);
         assertEquals("상품", item.getName());
-        assertEquals("향.", item.getIncense());
+        assertEquals("계절", item.getSeason());
     }
 
     @Test
@@ -55,9 +65,7 @@ class ItemServiceTest {
         List<Item> requestItems = IntStream.range(0,20)
                 .mapToObj(i -> Item.builder()
                         .name("상품 " +i)
-                        .note("노트 "+i)
-                        .incense("향"+i)
-                        .season("계절"+i)
+                        .season("계절 "+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
         ItemSearch itemSearch = ItemSearch.builder()
@@ -74,5 +82,64 @@ class ItemServiceTest {
 
 
     }
+    @Test
+    @DisplayName("아이템 이미지 불러오기")
+    void test3(){
+        //given
+        Item requestItem = Item.builder()
+                .name("상품")
+                .season("계절").build();
 
+        itemRepository.save(requestItem);
+
+        ItemCommentCreate create = ItemCommentCreate.builder()
+                .comment("댓글입니다.")
+                .item(requestItem).build();
+        itemService.write(requestItem.getId(),create);
+
+        ItemImages images1 = ItemImages.builder()
+                .originFileName("123")
+                .newFileName("123")
+                .item(requestItem).build();
+        itemImgRepository.save(images1);
+
+        ItemImages images2 = ItemImages.builder()
+                .originFileName("456")
+                .newFileName("444")
+                .item(requestItem).build();
+        itemImgRepository.save(images2);
+
+        Item item = itemRepository.findAll().get(0);
+        assertEquals("상품", item.getName());
+        assertEquals("계절", item.getSeason());
+        Set<ItemImages> itemImages = item.getImages();
+        System.out.println(item.getImages());
+    }
+
+    @Test
+    @DisplayName("댓글 작성하기")
+    void test4(){
+        //given
+        Item requestItem = Item.builder()
+                .name("상품")
+                .season("계절").build();
+
+        itemRepository.save(requestItem);
+
+        ItemCommentCreate create = ItemCommentCreate.builder()
+                .comment("댓글입니다.")
+                .item(requestItem).build();
+        itemService.write(requestItem.getId(),create);
+
+        assertEquals(1L, itemRepository.count());
+        Item item = itemRepository.findAll().get(0);
+        assertEquals("상품", item.getName());
+        assertEquals("계절", item.getSeason());
+
+        assertEquals(1L, itemCommentRepository.count());
+        ItemComment itemComment = itemCommentRepository.findAll().get(0);
+        assertEquals("댓글입니다.", itemComment.getComment());
+
+
+    }
 }

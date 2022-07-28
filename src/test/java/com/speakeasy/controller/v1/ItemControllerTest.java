@@ -2,6 +2,9 @@ package com.speakeasy.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.speakeasy.domain.Item;
+import com.speakeasy.domain.ItemImages;
+import com.speakeasy.repository.ItemCommentRepository;
+import com.speakeasy.repository.ItemImgRepository;
 import com.speakeasy.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,9 +40,17 @@ class ItemControllerTest {
     @Autowired
     private ItemRepository itemRepository;
 
+    @Autowired
+    private ItemCommentRepository itemCommentRepository;
+
+    @Autowired
+    private ItemImgRepository itemImgRepository;
+
     @BeforeEach
     void clean(){
         itemRepository.deleteAll();
+        itemCommentRepository.deleteAll();
+        itemImgRepository.deleteAll();
     }
 
     @Test
@@ -52,6 +63,7 @@ class ItemControllerTest {
                         .note("노트"+i)
                         .incense("향"+i)
                         .season("계절"+i)
+                        .base("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
 
@@ -61,7 +73,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()",is(10)))
                 .andExpect(jsonPath("$[0].name").value("상품19"))
-                .andExpect(jsonPath("$[0].incense").value("향19"))
+                .andExpect(jsonPath("$[0].note").value("노트19"))
                 .andDo(print());
 
     }
@@ -75,6 +87,7 @@ class ItemControllerTest {
                         .note("노트"+i)
                         .incense("향"+i)
                         .season("계절"+i)
+                        .base("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
 
@@ -84,7 +97,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()",is(10)))
                 .andExpect(jsonPath("$[0].name").value("상품9"))
-                .andExpect(jsonPath("$[0].incense").value("향9"))
+                .andExpect(jsonPath("$[0].note").value("노트9"))
                 .andDo(print());
 
     }
@@ -98,14 +111,65 @@ class ItemControllerTest {
                         .note("노트"+i)
                         .incense("향"+i)
                         .season("계절"+i)
+                        .base("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
 
         //expected
-        mockMvc.perform(get("/items?page=1&size=10&incense=향1")
+        mockMvc.perform(get("/items?page=1&size=10&incense=향1,향2")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].incense").value("향1"))
+                .andExpect(jsonPath("$[0].note").value("노트2"))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("아이템 상세정보")
+    void test4() throws Exception {
+        //given
+        Item item = Item.builder()
+                .name("상품")
+                .season("계절").build();
+
+        itemRepository.save(item);
+
+        //expected
+        mockMvc.perform(get("/items/{itemId}",item.getId())
+                    .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(item.getId()))
+                .andExpect(jsonPath("$.name").value("상품"))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("아이템 상세정보 이미지")
+    void test5() throws Exception {
+        //given
+        Item item = Item.builder()
+                .name("상품")
+                .season("계절").build();
+
+        itemRepository.save(item);
+
+        ItemImages images1 = ItemImages.builder()
+                .originFileName("123")
+                .newFileName("123")
+                .item(item).build();
+        itemImgRepository.save(images1);
+
+        ItemImages images2 = ItemImages.builder()
+                .originFileName("456")
+                .newFileName("444")
+                .item(item).build();
+        itemImgRepository.save(images2);
+
+        //expected
+        mockMvc.perform(get("/items/{itemId}/img",item.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(print());
 
     }

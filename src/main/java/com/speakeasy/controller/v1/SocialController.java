@@ -5,8 +5,11 @@ package com.speakeasy.controller.v1;
 
 
 import com.google.gson.Gson;
+import com.speakeasy.domain.User;
 import com.speakeasy.response.KakaoAuth;
+import com.speakeasy.response.KakaoProfile;
 import com.speakeasy.service.KakaoService;
+import com.speakeasy.service.SignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -18,6 +21,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/social/login")
@@ -27,6 +32,7 @@ public class SocialController {
     private final RestTemplate restTemplate;
     private final Gson gson;
     private final KakaoService kakaoService;
+    private final SignService signService;
 
     @Value("${spring.url.base}")
     private String baseUrl;
@@ -36,6 +42,7 @@ public class SocialController {
 
     @Value("${spring.social.kakao.redirect}")
     private String kakaoRedirect;
+
 
 
     /**
@@ -64,8 +71,12 @@ public class SocialController {
 //        mav.addObject("authInfo", kakaoService.getKakaoTokenInfo(code));
 //        mav.setViewName("social/redirectKakao");
         KakaoAuth kakaoAuth = kakaoService.getKakaoTokenInfo(code);
-        System.out.println(kakaoService.getKakaoProfile(kakaoAuth.getAccess_token()));
-        return "로그인 profile 가져오기 완료";
+
+        KakaoProfile profile =kakaoService.getKakaoProfile(kakaoAuth.getAccess_token());
+        Optional<User> user= signService.getByUidAndProvider("kakao",profile);
+        // 이후 만약 null일 경우, 회원가입으로 이동 아닐 경우 로그인 진행
+
+        return kakaoAuth.getAccess_token();
     }
 
 }

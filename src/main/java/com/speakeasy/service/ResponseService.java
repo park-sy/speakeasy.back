@@ -1,6 +1,9 @@
-package com.speakeasy.response;
+package com.speakeasy.service;
 
 
+import com.speakeasy.response.CommonResult;
+import com.speakeasy.response.ListResult;
+import com.speakeasy.response.SingleResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

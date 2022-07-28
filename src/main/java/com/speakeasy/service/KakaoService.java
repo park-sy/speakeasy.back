@@ -85,4 +85,5 @@ public class KakaoService {
         throw new CommunicationException();
     }
 
+
 }

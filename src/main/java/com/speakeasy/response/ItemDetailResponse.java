@@ -17,6 +17,7 @@ public class ItemDetailResponse {
     private final String incense;
     private final String season;
     private final String base;
+    private List<ItemImgResponse> images;
     private List<ItemCommentResponse> comments;
 
 
@@ -30,6 +31,9 @@ public class ItemDetailResponse {
         this.base = item.getBase();
         this.comments = item.getComments().stream()
                 .map(ItemCommentResponse::new)
+                .collect(Collectors.toList());
+        this.images = item.getImages().stream()
+                .map(ItemImgResponse::new)
                 .collect(Collectors.toList());
     }
 }

@@ -23,14 +23,16 @@ public class ItemSearch {
 
     private List<String> note;
     private List<String> incense;
+    private List<String> searchKey;
 
 
     @Builder
-    public ItemSearch(Integer page, Integer size, List<String> note, List<String> incense) {
+    public ItemSearch(Integer page, Integer size, List<String> note, List<String> incense, List<String> searchKey) {
         this.page = page == null ? 1 : page;
         this.size = size == null ? 10 :size;
         this.note = note;
         this.incense = incense;
+        this.searchKey = searchKey;
     }
 
     public long getOffset(){

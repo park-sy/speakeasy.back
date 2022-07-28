@@ -33,7 +33,7 @@ public class ItemController {
         return itemService.get(itemId);
     }
     @GetMapping("/items/{itemId}/img")
-    public File[] getImg(@PathVariable Long itemId){
+    public List<ItemImgResponse> getImg(@PathVariable Long itemId){
         return itemService.getImg(itemId);
     }
 

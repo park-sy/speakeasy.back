@@ -1,5 +1,6 @@
 package com.speakeasy.response;
 
+import com.speakeasy.domain.ItemImages;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,18 +10,12 @@ import java.util.List;
 @Getter
 public class ItemImgResponse {
 
-    private Long id;
-    private List<String> images;
-    private final String path = "src/main/resources/static/img/";
+    private String newFileName;
+//    private final String path = "src/main/resources/static/img/";
 
-    @Builder
-    public ItemImgResponse(Long id) {
-        this.id = id;
+    public ItemImgResponse(ItemImages itemImages){
+        this.newFileName = itemImages.getNewFileName();
     }
 
-    public File[] getImg(Long id){
-        File dir = new File(path+id);
-        File[] image = dir.listFiles();
-        return image;
-    }
+
 }

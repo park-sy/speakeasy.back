@@ -9,5 +9,6 @@ import java.util.List;
 
 public interface ItemRepositoryCustom {
 
-    List<ItemResponse> getList(ItemSearch itemSearch);
+    List<Item> getList(ItemSearch itemSearch);
+
 }

@@ -3,8 +3,10 @@ package com.speakeasy.service;
 
 import com.speakeasy.domain.Item;
 import com.speakeasy.domain.ItemComment;
+import com.speakeasy.domain.ItemImages;
 import com.speakeasy.exception.ItemNotFound;
 import com.speakeasy.repository.ItemCommentRepository;
+import com.speakeasy.repository.ItemImgRepository;
 import com.speakeasy.repository.ItemRepository;
 import com.speakeasy.request.ItemCommentCreate;
 import com.speakeasy.request.ItemSearch;
@@ -26,12 +28,8 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCommentRepository itemCommentRepository;
+    private final ItemImgRepository itemImgRepository;
 
-//    public List<ItemResponse> getList(ItemSearch itemSearch){
-//        return itemRepository.getList(itemSearch).stream()
-//                .map(ItemResponse::new)
-//                .collect(Collectors.toList());
-//    }
 
     public List<ItemResponse> getList(ItemSearch itemSearch){
         return itemRepository.getList(itemSearch).stream()
@@ -46,14 +44,13 @@ public class ItemService {
         return itemDetailResponse;
     }
 
-    public File[] getImg(Long itemId) {
-
-        ItemImgResponse itemImg =  ItemImgResponse.builder()
-                                        .id(itemId).build();
-
-        return itemImg.getImg(itemImg.getId());
+    public List<ItemImgResponse> getImg(Long itemId){
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(ItemNotFound::new);
+        return itemImgRepository.findByItem(item).stream()
+                .map(ItemImgResponse::new)
+                .collect(Collectors.toList());
     }
-
     public Long write(Long id, ItemCommentCreate create) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(ItemNotFound::new);

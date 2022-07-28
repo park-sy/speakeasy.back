@@ -20,28 +20,28 @@ import static com.speakeasy.domain.QItem.item;
 public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
     private final JPAQueryFactory jpaQueryFactory;
-
     @Override
-    public List<ItemResponse> getList(ItemSearch itemSearch){
+    public List<Item> getList(ItemSearch itemSearch){
         //JPAQueryFactory의 내무 메소드를 통해 페이지 규격 설정
         return jpaQueryFactory
-                .select(Projections.constructor(ItemResponse.class,
-                        item.id, item.name, item.note,item.incense, item.season))
-                .from(item)
+                .selectFrom(item)
                 .where(
                         eqNote(itemSearch.getNote()),
                         eqIncense(itemSearch.getIncense())
+//                        search(itemSearch.getSearchKey())
                 )
                 .limit(itemSearch.getSize())
                 .offset(itemSearch.getOffset())
                 .orderBy(item.id.desc())
                 .fetch();
     }
+
     //BooleanExpression을 통한 동적 쿼리문 작성
     private BooleanExpression eqNote(List<String> note){
         if(note == null){
             return null;
         }
+        item.note.in(note).and(item.note.like("11"));
         return item.note.in(note);
     }
 
@@ -51,6 +51,15 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
         }
         return item.incense.in(incense);
     }
+
+//    private BooleanExpression search(List<String> searchKey){
+//        if(searchKey == null){
+//            return null;
+//        }
+//        return item.incense.like(searchKey.toString())
+//                .and(item.note.contains(searchKey.toString()));
+//    }
+
 
 //    private BooleanExpression goeMinPrice(Integer minPrice){
 //        if(minPrice == null){

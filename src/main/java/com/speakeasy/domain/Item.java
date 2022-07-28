@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity  //데이터베이스에 사용될 entity를 정의
 @Getter  //getter 자동 선언
@@ -25,7 +26,12 @@ public class Item {
 
     @OneToMany(mappedBy = "item", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @OrderBy("id asc")
-    private List<ItemComment> comments ;
+    private Set<ItemComment> comments ;
+
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OrderBy("id asc")
+    private Set<ItemImages> images;
+
     @Builder //Builder 패턴 사용
     public Item(String name, String note, String incense, String season, String base) {
         this.name = name;

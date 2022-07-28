@@ -2,12 +2,12 @@ package com.speakeasy.service;
 
 import com.speakeasy.domain.Item;
 import com.speakeasy.domain.ItemComment;
+import com.speakeasy.domain.ItemImages;
 import com.speakeasy.repository.ItemCommentRepository;
+import com.speakeasy.repository.ItemImgRepository;
 import com.speakeasy.repository.ItemRepository;
 import com.speakeasy.request.ItemCommentCreate;
 import com.speakeasy.request.ItemSearch;
-import com.speakeasy.response.ItemCommentResponse;
-import com.speakeasy.response.ItemImgResponse;
 import com.speakeasy.response.ItemResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -35,6 +34,9 @@ class ItemServiceTest {
 
     @Autowired
     private ItemCommentRepository itemCommentRepository;
+
+    @Autowired
+    private ItemImgRepository itemImgRepository;
 
     @BeforeEach
     void clean(){
@@ -84,18 +86,34 @@ class ItemServiceTest {
     @DisplayName("아이템 이미지 불러오기")
     void test3(){
         //given
+        Item requestItem = Item.builder()
+                .name("상품")
+                .season("계절").build();
 
-        ItemImgResponse itemImgResponse = ItemImgResponse.builder()
-                .id((long)718)
-                .build();
+        itemRepository.save(requestItem);
 
-        //when
-        File[] images = itemImgResponse.getImg(itemImgResponse.getId());
+        ItemCommentCreate create = ItemCommentCreate.builder()
+                .comment("댓글입니다.")
+                .item(requestItem).build();
+        itemService.write(requestItem.getId(),create);
 
-        //then
-//        assertEquals("상품 19", Arrays.stream(images).map().get(0));
+        ItemImages images1 = ItemImages.builder()
+                .originFileName("123")
+                .newFileName("123")
+                .item(requestItem).build();
+        itemImgRepository.save(images1);
 
+        ItemImages images2 = ItemImages.builder()
+                .originFileName("456")
+                .newFileName("444")
+                .item(requestItem).build();
+        itemImgRepository.save(images2);
 
+        Item item = itemRepository.findAll().get(0);
+        assertEquals("상품", item.getName());
+        assertEquals("계절", item.getSeason());
+        Set<ItemImages> itemImages = item.getImages();
+        System.out.println(item.getImages());
     }
 
     @Test

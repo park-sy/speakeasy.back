@@ -3,6 +3,7 @@ package com.speakeasy.controller.v1;
 
 import com.speakeasy.request.ItemCommentCreate;
 import com.speakeasy.request.ItemSearch;
+import com.speakeasy.response.ItemCommentResponse;
 import com.speakeasy.response.ItemDetailResponse;
 import com.speakeasy.response.ItemImgResponse;
 import com.speakeasy.response.ItemResponse;
@@ -36,18 +37,22 @@ public class ItemController {
     public List<ItemImgResponse> getImg(@PathVariable Long itemId){
         return itemService.getImg(itemId);
     }
-
+    @GetMapping("/items/{itemId}/comments") //User
+    public List<ItemCommentResponse> getComment(@PathVariable Long itemId){
+        return itemService.getComment(itemId);
+    }
     @PostMapping("/items/{itemId}/comments") //User
     public ResponseEntity commentSave(@PathVariable Long id, @RequestBody ItemCommentCreate create){
         return ResponseEntity.ok(itemService.write(id,create));
     }
 
-    @PatchMapping("/items/{itemId}/comments")
+    @PatchMapping("/items/{itemId}/comments/{id}")
     public void editComment(@PathVariable Long id, @RequestBody @Valid ItemCommentCreate edit){
         itemService.commentEdit(id,edit);
     }
-    @DeleteMapping("/items/{itemId}/comments")
-    public void commentDelete(@PathVariable Long id){
+    @DeleteMapping("/items/{itemId}/comments/{id}")
+    public ResponseEntity commentDelete(@PathVariable Long id){
         itemService.commentDelete(id);
+        return ResponseEntity.ok(id);
     }
 }

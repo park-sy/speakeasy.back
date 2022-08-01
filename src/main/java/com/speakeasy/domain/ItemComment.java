@@ -5,6 +5,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Entity  //데이터베이스에 사용될 entity를 정의
@@ -32,11 +34,14 @@ public class ItemComment {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    public ItemComment(Long id, String comment, Item item) {
-        this.id = id;
-        this.comment = comment;
-        this.item = item;
-    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private ItemComment parent;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<ItemComment> children = new ArrayList<>();
 
     public void edit(String comment) {
         this.comment = comment;

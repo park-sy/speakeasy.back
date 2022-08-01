@@ -2,10 +2,14 @@ package com.speakeasy.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.speakeasy.domain.Item;
+import com.speakeasy.domain.ItemComment;
 import com.speakeasy.domain.ItemImages;
+import com.speakeasy.domain.User;
 import com.speakeasy.repository.ItemCommentRepository;
 import com.speakeasy.repository.ItemImgRepository;
 import com.speakeasy.repository.ItemRepository;
+import com.speakeasy.repository.UserRepository;
+import com.speakeasy.request.ItemCommentCreate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +26,7 @@ import java.util.stream.IntStream;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,12 +50,15 @@ class ItemControllerTest {
 
     @Autowired
     private ItemImgRepository itemImgRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @BeforeEach
     void clean(){
         itemRepository.deleteAll();
         itemCommentRepository.deleteAll();
         itemImgRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -171,6 +179,91 @@ class ItemControllerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+    }
 
+    @Test
+    @DisplayName("댓글 가져오기")
+    void test6() throws Exception{
+        //given
+        Item item = Item.builder()
+                .name("상품")
+                .season("계절").build();
+        itemRepository.save(item);
+
+        User user = User.builder()
+                .uid("userid")
+                .password("123")
+                .name("이름").build();
+        userRepository.save(user);
+
+        ItemComment parent = ItemComment.builder()
+                .comment("부모")
+                .user(user)
+                .item(item).build();
+        itemCommentRepository.save(parent);
+
+        ItemComment children = ItemComment.builder()
+                .comment("자식")
+                .user(user)
+                .parent(parent)
+                .item(item).build();
+        itemCommentRepository.save(children);
+
+        ItemComment parent2 = ItemComment.builder()
+                .comment("부모2")
+                .user(user)
+                .item(item).build();
+        itemCommentRepository.save(parent2);
+
+        //expected
+        mockMvc.perform(get("/items/{itemId}/comments",item.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제하기")
+    void test7() throws Exception{
+        //given
+        Item item = Item.builder()
+                .name("상품")
+                .season("계절").build();
+        itemRepository.save(item);
+
+        User user = User.builder()
+                .uid("userid")
+                .password("123")
+                .name("이름").build();
+        userRepository.save(user);
+
+        ItemComment parent = ItemComment.builder()
+                .comment("부모")
+                .user(user)
+                .item(item).build();
+        itemCommentRepository.save(parent);
+
+        ItemComment children = ItemComment.builder()
+                .comment("자식")
+                .user(user)
+                .parent(parent)
+                .item(item).build();
+        itemCommentRepository.save(children);
+
+        ItemComment parent2 = ItemComment.builder()
+                .comment("부모2")
+                .user(user)
+                .item(item).build();
+        itemCommentRepository.save(parent2);
+
+        //expected
+        mockMvc.perform(delete("/items/{itemId}/comments/{commentId}",item.getId(),parent.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+        mockMvc.perform(get("/items/{itemId}/comments",item.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 }

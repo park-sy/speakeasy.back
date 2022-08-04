@@ -10,6 +10,9 @@ import com.speakeasy.request.ItemSearch;
 import com.speakeasy.response.ItemResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +21,7 @@ import static com.speakeasy.domain.QItem.item;
 @RequiredArgsConstructor //자동으로 생성자 주입
 @ToString
 public class ItemRepositoryImpl implements ItemRepositoryCustom{
+
 
     private final JPAQueryFactory jpaQueryFactory;
     @Override
@@ -73,8 +77,15 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
 //        }
 //        return item.minPrice.loe(minPrice);
 //    }
+    @Override
+    @Transactional
+    public void updateView(Long itemId){
+        jpaQueryFactory.update(item)
+                .set(item.view, item.view.add(1))
+                .where(item.id.eq(itemId))
+                .execute();
 
-
+    }
 
 }
 

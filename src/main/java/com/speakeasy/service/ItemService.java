@@ -114,5 +114,7 @@ public class ItemService {
     }
 
 
-
+    public void updateView(Long itemId) {
+        itemRepository.updateView(itemId);
+    }
 }

@@ -266,4 +266,28 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
+    @Test
+    @DisplayName("아이템 조회수")
+    void test8() throws Exception {
+        //given
+        Item item = Item.builder()
+                .name("상품")
+                .season("계절").build();
+
+        itemRepository.save(item);
+
+        mockMvc.perform(get("/items/{itemId}",item.getId()));
+        mockMvc.perform(get("/items/{itemId}",item.getId()));
+
+        //expected
+        mockMvc.perform(get("/items/{itemId}",item.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(item.getId()))
+                .andExpect(jsonPath("$.name").value("상품"))
+                .andDo(print());
+
+
+    }
 }

@@ -9,4 +9,5 @@ import java.util.List;
 
 
 public interface ItemCommentRepository extends JpaRepository<ItemComment, Long>,ItemCommentRepositoryCustom {
+
 }

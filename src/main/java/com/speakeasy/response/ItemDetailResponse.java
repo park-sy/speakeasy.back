@@ -19,7 +19,7 @@ public class ItemDetailResponse {
     private final String base;
     private List<ItemImgResponse> images;
     private List<ItemCommentResponse> comments;
-
+    private final int view;
 
 
     public ItemDetailResponse(Item item) {
@@ -35,5 +35,6 @@ public class ItemDetailResponse {
         this.images = item.getImages().stream()
                 .map(ItemImgResponse::new)
                 .collect(Collectors.toList());
+        this.view = item.getView();
     }
 }

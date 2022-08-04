@@ -31,6 +31,7 @@ public class ItemController {
 
     @GetMapping("/items/{itemId}")
     public ItemDetailResponse get(@PathVariable Long itemId){
+        itemService.updateView(itemId);
         return itemService.get(itemId);
     }
     @GetMapping("/items/{itemId}/img")

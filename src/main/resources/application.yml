@@ -10,7 +10,7 @@ spring:
     show-sql: true
     hibernate:
       format_sql: true
-      ddl-auto: create  # 서버 재부팅 시 DB에 저장된 파일 초기화하지 않음(초기화 : update -> create)
+      ddl-auto: update  # 서버 재부팅 시 DB에 저장된 파일 초기화하지 않음(초기화 : update -> create)
   jwt:
     secret: govlepel@$&
   social:
@@ -26,3 +26,7 @@ spring:
   freemarker:
     template-loader-path: classpath:/templates
     suffix: .ftl
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 3000 #ms connection timeout

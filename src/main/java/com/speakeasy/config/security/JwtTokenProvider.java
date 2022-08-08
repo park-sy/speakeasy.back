@@ -1,5 +1,6 @@
 package com.speakeasy.config.security;
 
+import com.speakeasy.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -11,8 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
@@ -39,6 +42,11 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
     // Jwt 토큰 생성
     public String createToken(String userPk, List<String> roles, long tokenValidMilisecond) {
         Claims claims = Jwts.claims().setSubject(userPk);
+        System.out.println("CRESTA");
+
+        System.out.println(userPk);
+        System.out.println(roles);
+
         claims.put("roles", roles);
         Date now = new Date();
         return Jwts.builder()
@@ -61,8 +69,12 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
     }
 
     // Request의 Header에서 token 파싱 : "X-AUTH-TOKEN: jwt토큰"
-    public String resolveToken(HttpServletRequest req) {
-        return req.getHeader("X-AUTH-TOKEN");
+    // Request의 Header에서 token 값을 가져옵니다. "X-AUTH-TOKEN" : "TOKEN값'
+    public String resolveToken(HttpServletRequest request) {
+        String token = null;
+        Cookie cookie = WebUtils.getCookie(request, "AccessToken");
+        if(cookie != null) token = cookie.getValue();
+        return token;
     }
 
     // Jwt 토큰의 유효성 + 만료일자 확인

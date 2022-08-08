@@ -16,6 +16,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     // Jwt Provier 주입
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
+
         this.jwtTokenProvider = jwtTokenProvider;
     }
 

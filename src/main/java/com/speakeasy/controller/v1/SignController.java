@@ -12,8 +12,13 @@ import com.speakeasy.response.SingleResult;
 import com.speakeasy.service.SignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RequiredArgsConstructor
@@ -26,13 +31,38 @@ public class SignController {
     private final SignService signService;
 
 
+
     @PostMapping(value = "/signin")
-    public SingleResult<TokenResponse> signIn(@RequestBody @Valid UserSignIn request) {
+    public SingleResult<TokenResponse> signIn(@RequestBody @Valid UserSignIn request, HttpServletResponse response) {
         TokenResponse tokenResponse = signService.signIn(request);
+//        response.setHeader("X-AUTH-TOKEN", tokenResponse.getAccessToken());
+//        Cookie cookie = new Cookie("X-AUTH-TOKEN", tokenResponse.getAccessToken());
+        Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
+        accessCookie.setPath("/");
+//        accessCookie.setHttpOnly(true);
+//        accessCookie.setSecure(true);
+        response.addCookie(accessCookie);
+        Cookie resfreshCookie = new Cookie("RefreshToken", tokenResponse.getRefreshToken());
+        resfreshCookie.setPath("/");
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(true);
+        response.addCookie(resfreshCookie);
         return responseService.
                 getSingleResult(tokenResponse);
     }
 
+    @PostMapping("/signout")
+    public String signOut(HttpServletResponse response){
+
+//        Cookie cookie = new Cookie("X-AUTH-TOKEN", null);
+        Cookie cookie = new Cookie("AccessToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return "로그아웃 성공";
+    }
     @PostMapping(value = "/signup")
     public CommonResult signup(@RequestBody @Valid UserSignUp request) {
 //        request.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -40,11 +70,36 @@ public class SignController {
         return responseService.getSuccessResult();
     }
 
+    @PostMapping(value = "/reissue")
+    public CommonResult reissue(HttpServletRequest request, HttpServletResponse response) {
+        TokenResponse tokenResponse = signService.reissue(request);
+        Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
+//        Cookie refreshCookie = new Cookie("RefreshToken", tokenResponse.getRefreshToken());
+//        refreshCookie.setPath("/");
+//        response.addCookie(refreshCookie);
+        return responseService.getSuccessResult();
+    }
+
+
     @PostMapping(value = "/signin/{provider}")
     public SingleResult<TokenResponse> signInByProvider(
             @PathVariable String provider,
-            @RequestParam String socialToken) {
+            @RequestParam String socialToken,
+            HttpServletResponse response) {
         TokenResponse tokenResponse = signService.signInByKakao(provider,socialToken);
+        Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
+        accessCookie.setPath("/");
+//        accessCookie.setHttpOnly(true);
+//        accessCookie.setSecure(true);
+        response.addCookie(accessCookie);
+        Cookie refreshCookie = new Cookie("RefreshToken", tokenResponse.getAccessToken());
+        refreshCookie.setPath("/");
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(true);
+        response.addCookie(refreshCookie);
+
         return responseService.
                 getSingleResult(tokenResponse);
     }
@@ -56,6 +111,7 @@ public class SignController {
         signService.joinByKakao(provider, accessToken, name);
         return responseService.getSuccessResult();
     }
+
 
 }
 //    @PostMapping(value = "/signin")

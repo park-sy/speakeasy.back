@@ -12,17 +12,25 @@ import com.speakeasy.request.UserSignUp;
 import com.speakeasy.response.KakaoAuth;
 import com.speakeasy.response.KakaoProfile;
 import com.speakeasy.response.TokenResponse;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -37,6 +45,7 @@ public class SignService  {
     private final KakaoService kakaoService;
 
     private static final String BEARER_TYPE = "Bearer";
+    private final RedisTemplate redisTemplate;
 
     private final JwtTokenProvider jwtTokenProvider;
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 30 * 60 * 1000L;              // 30분
@@ -62,7 +71,8 @@ public class SignService  {
         }
         String accessToken = jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles(), ACCESS_TOKEN_EXPIRE_TIME);
         String refreshToken = jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles(), REFRESH_TOKEN_EXPIRE_TIME);
-
+        redisTemplate.opsForValue()
+                .set("RT:" + user.getUid(), refreshToken , REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         return TokenResponse
                 .builder()
                 .grantType(BEARER_TYPE)
@@ -113,8 +123,46 @@ public class SignService  {
         }
         return user;
     }
+    @Transactional
+    public TokenResponse reissue(HttpServletRequest request) { //추후 리퀘스트로 수정
+        String token = null;
+        Cookie cookie = WebUtils.getCookie(request, "RefreshToken");
+        if(cookie != null) token = cookie.getValue();
+
+        // 1. Refresh Token 검증
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new RuntimeException("Refresh Token 이 유효하지 않습니다.");
+        }
+
+        // 2. Access Token 에서 Member ID 가져오기
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+
+        // 3. Redis 에서 User email 을 기반으로 저장된 Refresh Token 값을 가져옵니다.
+        String refreshToken = (String)redisTemplate.opsForValue().get("RT:" + authentication.getName());
+        if(!refreshToken.equals(token)) {
+            return null;
+        }
+        System.out.println("refreshToken");
+        System.out.println( refreshToken);
+        User principal = (User) authentication.getPrincipal();
+//        System.out.println( principal.getRoles());
+
+        // 4. Refresh Token 일치하는지 검사
+        if (!refreshToken.equals(token)) {
+            throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
+        }
+
+//         5. 새로운 Access 토큰 생성
+        String newAccessToken = jwtTokenProvider.createToken(jwtTokenProvider.getUserPk(refreshToken),principal.getRoles(),REFRESH_TOKEN_EXPIRE_TIME);
+
+//         토큰 발급
+        return TokenResponse.builder().accessToken(newAccessToken).refreshToken(token).build();
+    }
+
+    //리프레쉬 토큰을 재생성하는 로직. 구현 중
 //    @Transactional
 //    public TokenResponse reissue(TokenResponse tokenRequest) { //추후 리퀘스트로 수정
+//
 //        // 1. Refresh Token 검증
 //        if (!jwtTokenProvider.validateToken(tokenRequest.getRefreshToken())) {
 //            throw new RuntimeException("Refresh Token 이 유효하지 않습니다.");
@@ -123,9 +171,15 @@ public class SignService  {
 //        // 2. Access Token 에서 Member ID 가져오기
 //        Authentication authentication = jwtTokenProvider.getAuthentication(tokenRequest.getAccessToken());
 //
-//        // 3. 저장소에서 Member ID 를 기반으로 Refresh Token 값 가져옴
-//        RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
-//                .orElseThrow(() -> new RuntimeException("로그아웃 된 사용자입니다."));
+//        // 3. Redis 에서 User email 을 기반으로 저장된 Refresh Token 값을 가져옵니다.
+//        String refreshToken = (String)redisTemplate.opsForValue().get("RT:" + authentication.getName());
+//        if(!refreshToken.equals(tokenRequest.getRefreshToken())) {
+//            return null;
+//        }
+//        System.out.println("refreshToken");
+//        System.out.println( refreshToken);
+//        User principal = (User) authentication.getPrincipal();
+////        System.out.println( principal.getRoles());
 //
 //        // 4. Refresh Token 일치하는지 검사
 //        if (!refreshToken.equals(tokenRequest.getRefreshToken())) {
@@ -133,14 +187,14 @@ public class SignService  {
 //        }
 //
 //        // 5. 새로운 토큰 생성
-//        TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
+//        String newRefreshToken = jwtTokenProvider.createToken(jwtTokenProvider.getUserPk(refreshToken),principal.getRoles(),REFRESH_TOKEN_EXPIRE_TIME);
 //
 //        // 6. 저장소 정보 업데이트
-//        RefreshToken newRefreshToken = refreshToken.updateValue(tokenDto.getRefreshToken());
-//        refreshTokenRepository.save(newRefreshToken);
+//        redisTemplate.opsForValue()
+//                .set("RT:" + authentication.getName(), newRefreshToken, REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
 //
 //        // 토큰 발급
-//        return TokenResponse;
+//        return TokenResponse.builder().accessToken(tokenRequest.getAccessToken()).refreshToken(newRefreshToken).build();
 //    }
 }
 

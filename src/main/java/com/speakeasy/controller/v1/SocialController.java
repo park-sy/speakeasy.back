@@ -46,7 +46,7 @@ public class SocialController {
 
 
     /**
-     * 카카카오 로그인 페이지, rest api 형식이므로 버튼만 나오도록
+     * 카카오 로그인 페이지, rest api 형식이므로 버튼만 나오도록
      */
     @GetMapping
     public ModelAndView socialLogin(ModelAndView mav) {
@@ -71,7 +71,6 @@ public class SocialController {
 //        mav.addObject("authInfo", kakaoService.getKakaoTokenInfo(code));
 //        mav.setViewName("social/redirectKakao");
         KakaoAuth kakaoAuth = kakaoService.getKakaoTokenInfo(code);
-
         KakaoProfile profile =kakaoService.getKakaoProfile(kakaoAuth.getAccess_token());
         System.out.println(profile);
         Optional<User> user= signService.getByUidAndProvider("kakao",profile);

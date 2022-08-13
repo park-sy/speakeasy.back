@@ -1,11 +1,9 @@
 package com.speakeasy.service;
 
 import com.speakeasy.config.security.JwtTokenProvider;
-import com.speakeasy.domain.RefreshToken;
 import com.speakeasy.domain.User;
 import com.speakeasy.exception.EmailSigninFailedException;
 import com.speakeasy.exception.UserNotFoundException;
-import com.speakeasy.repository.RefreshTokenRepository;
 import com.speakeasy.repository.UserRepository;
 import com.speakeasy.request.UserSignIn;
 import com.speakeasy.request.UserSignUp;
@@ -38,7 +36,6 @@ public class SignService  {
 //public class SignService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;

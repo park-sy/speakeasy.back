@@ -73,6 +73,7 @@ public class SocialController {
         KakaoAuth kakaoAuth = kakaoService.getKakaoTokenInfo(code);
 
         KakaoProfile profile =kakaoService.getKakaoProfile(kakaoAuth.getAccess_token());
+        System.out.println(profile);
         Optional<User> user= signService.getByUidAndProvider("kakao",profile);
         // 이후 만약 null일 경우, 회원가입으로 이동 아닐 경우 로그인 진행
 

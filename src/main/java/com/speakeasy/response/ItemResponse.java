@@ -10,18 +10,17 @@ public class ItemResponse {
     private final String path = "/resources/static/img/";
     private final Long id;
     private final String name;
-    private final String note;
-//    private final String incense;
-//    private final String season;
+
+    private final String brand;
     private final String mainImg;
 
 
 //    @Builder //빌더 패턴 새용
-//    public ItemResponse(Long id, String name, String note, String incense, String season) {
+//    public ItemResponse(Long id, String name, String topNotes, String brand, String season) {
 //        this.id = id;
 //        this.name = name;
-//        this.note = note;
-////        this.incense = incense;
+//        this.topNotes = topNotes;
+////        this.brand = brand;
 ////        this.season = season;
 //        this.mainImg = path+name+"main.jpg";
 //    }
@@ -29,9 +28,7 @@ public class ItemResponse {
     public ItemResponse(Item item) {
         this.id = item.getId();
         this.name = item.getName();
-        this.note = item.getNote();
-//        this.incense = item.getIncense();
-//        this.season = item.getSeason();
+        this.brand = item.getBrand();
         this.mainImg = path+item.getName()+"/main.jpg";
     }
 }

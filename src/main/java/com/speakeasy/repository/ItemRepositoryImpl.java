@@ -10,6 +10,9 @@ import com.speakeasy.request.ItemSearch;
 import com.speakeasy.response.ItemResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +22,7 @@ import static com.speakeasy.domain.QItem.item;
 @ToString
 public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
+
     private final JPAQueryFactory jpaQueryFactory;
     @Override
     public List<Item> getList(ItemSearch itemSearch){
@@ -26,8 +30,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
         return jpaQueryFactory
                 .selectFrom(item)
                 .where(
-                        eqNote(itemSearch.getNote()),
-                        eqIncense(itemSearch.getIncense())
+//                        eqtopNotes(itemSearch.getTopNotes()),
+                        eqbrand(itemSearch.getBrand())
 //                        search(itemSearch.getSearchKey())
                 )
                 .limit(itemSearch.getSize())
@@ -37,27 +41,27 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
     }
 
     //BooleanExpression을 통한 동적 쿼리문 작성
-    private BooleanExpression eqNote(List<String> note){
-        if(note == null){
-            return null;
-        }
-        item.note.in(note).and(item.note.like("11"));
-        return item.note.in(note);
-    }
+//    private BooleanExpression eqtopNotes(List<String> topNotes){
+//        if(topNotes == null){
+//            return null;
+//        }
+//        item.topNotes.in(topNotes).and(item.topNotes.like("11"));
+//        return item.topNotes.in(topNotes);
+//    }
 
-    private BooleanExpression eqIncense(List<String> incense){
-        if(incense == null){
+    private BooleanExpression eqbrand(List<String> brand){
+        if(brand == null){
             return null;
         }
-        return item.incense.in(incense);
+        return item.brand.in(brand);
     }
 
 //    private BooleanExpression search(List<String> searchKey){
 //        if(searchKey == null){
 //            return null;
 //        }
-//        return item.incense.like(searchKey.toString())
-//                .and(item.note.contains(searchKey.toString()));
+//        return item.brand.like(searchKey.toString())
+//                .and(item.topNotes.contains(searchKey.toString()));
 //    }
 
 
@@ -73,8 +77,15 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
 //        }
 //        return item.minPrice.loe(minPrice);
 //    }
+    @Override
+    @Transactional
+    public void updateView(Long itemId){
+        jpaQueryFactory.update(item)
+                .set(item.view, item.view.add(1))
+                .where(item.id.eq(itemId))
+                .execute();
 
-
+    }
 
 }
 

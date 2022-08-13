@@ -22,7 +22,7 @@ existingUser:
 notOwner:
   code: "-1006"
   msg: "You are not the owner of this resource."
-resourceNotExist:
+resourcetopNotesxist:
   code: "-1007"
   msg: "This resource does not exist."
 forbiddenWord:

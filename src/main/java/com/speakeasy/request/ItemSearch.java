@@ -21,17 +21,17 @@ public class ItemSearch {
     private Integer page;
     private Integer size;
 
-    private List<String> note;
-    private List<String> incense;
+    private List<String> topNotes;
+    private List<String> brand;
     private List<String> searchKey;
 
 
     @Builder
-    public ItemSearch(Integer page, Integer size, List<String> note, List<String> incense, List<String> searchKey) {
+    public ItemSearch(Integer page, Integer size, List<String> topNotes, List<String> brand, List<String> searchKey) {
         this.page = page == null ? 1 : page;
         this.size = size == null ? 10 :size;
-        this.note = note;
-        this.incense = incense;
+        this.topNotes = topNotes;
+        this.brand = brand;
         this.searchKey = searchKey;
     }
 
@@ -39,4 +39,5 @@ public class ItemSearch {
         //페이지 0이 요청될 시 1페이지 반환
         return (long) (max(1,page) - 1) * min(size,MAX_SIZE);
     }
+
 }

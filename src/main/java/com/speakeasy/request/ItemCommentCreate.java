@@ -22,8 +22,12 @@ public class ItemCommentCreate {
 
     @Builder.Default
     private String modifiedDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+    private Long parentID;
     private User user;
+
+    private ItemComment parent = null;
     private Item item;
+
 
     public ItemComment toEntity(){
         ItemComment itemComment = ItemComment.builder()
@@ -32,6 +36,7 @@ public class ItemCommentCreate {
                 .createdDate(createdDate)
                 .modifiedDate(modifiedDate)
                 .user(user)
+                .parent(parent)
                 .item(item)
                 .build();
         return itemComment;

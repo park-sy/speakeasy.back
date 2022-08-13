@@ -68,10 +68,9 @@ class ItemControllerTest {
         List<Item> requestItems = IntStream.range(0,20)
                 .mapToObj(i -> Item.builder()
                         .name("상품" +i)
-                        .note("노트"+i)
-                        .incense("향"+i)
+                        .brand("브랜드"+i)
                         .season("계절"+i)
-                        .base("베이스"+i)
+                        .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
 
@@ -81,7 +80,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()",is(10)))
                 .andExpect(jsonPath("$[0].name").value("상품19"))
-                .andExpect(jsonPath("$[0].note").value("노트19"))
+                .andExpect(jsonPath("$[0].brand").value("브랜드19"))
                 .andDo(print());
 
     }
@@ -92,10 +91,9 @@ class ItemControllerTest {
         List<Item> requestItems = IntStream.range(0,20)
                 .mapToObj(i -> Item.builder()
                         .name("상품" +i)
-                        .note("노트"+i)
-                        .incense("향"+i)
+                        .brand("브랜드"+i)
                         .season("계절"+i)
-                        .base("베이스"+i)
+                        .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
 
@@ -105,7 +103,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()",is(10)))
                 .andExpect(jsonPath("$[0].name").value("상품9"))
-                .andExpect(jsonPath("$[0].note").value("노트9"))
+                .andExpect(jsonPath("$[0].brand").value("브랜드9"))
                 .andDo(print());
 
     }
@@ -116,18 +114,17 @@ class ItemControllerTest {
         List<Item> requestItems = IntStream.range(0,20)
                 .mapToObj(i -> Item.builder()
                         .name("상품" +i)
-                        .note("노트"+i)
-                        .incense("향"+i)
+                        .brand("브랜드"+i)
                         .season("계절"+i)
-                        .base("베이스"+i)
+                        .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
 
         //expected
-        mockMvc.perform(get("/items?page=1&size=10&incense=향1,향2")
+        mockMvc.perform(get("/items?page=1&size=10&brand=브랜드1,브랜드2")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].note").value("노트2"))
+                .andExpect(jsonPath("$[0].brand").value("브랜드2"))
                 .andDo(print());
 
     }
@@ -138,6 +135,18 @@ class ItemControllerTest {
         //given
         Item item = Item.builder()
                 .name("상품")
+                .ratingPoints(50L)
+                .ratingVotes(10L)
+                .scentPoints(55L)
+                .scentVotes(10L)
+                .longevityPoints(30L)
+                .longevityVotes(10L)
+                .sillagePoints(40L)
+                .sillageVotes(10L)
+                .bottlePoints(10L)
+                .bottleVotes(10L)
+                .valueOfMoneyPoints(46L)
+                .valueOfMoneyVotes(10L)
                 .season("계절").build();
 
         itemRepository.save(item);
@@ -273,10 +282,21 @@ class ItemControllerTest {
         //given
         Item item = Item.builder()
                 .name("상품")
+                .ratingPoints(50L)
+                .ratingVotes(10L)
+                .scentPoints(55L)
+                .scentVotes(10L)
+                .longevityPoints(30L)
+                .longevityVotes(10L)
+                .sillagePoints(40L)
+                .sillageVotes(10L)
+                .bottlePoints(10L)
+                .bottleVotes(10L)
+                .valueOfMoneyPoints(46L)
+                .valueOfMoneyVotes(10L)
                 .season("계절").build();
 
         itemRepository.save(item);
-
         mockMvc.perform(get("/items/{itemId}",item.getId()));
         mockMvc.perform(get("/items/{itemId}",item.getId()));
 

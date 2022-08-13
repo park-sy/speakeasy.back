@@ -3,6 +3,7 @@ package com.speakeasy.controller.v1;
 import com.speakeasy.config.security.JwtTokenProvider;
 
 import com.speakeasy.domain.User;
+import com.speakeasy.request.TokenRequest;
 import com.speakeasy.request.UserSignIn;
 import com.speakeasy.request.UserSignUp;
 import com.speakeasy.response.CommonResult;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.WebUtils;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
@@ -53,7 +55,6 @@ public class SignController {
 
     @PostMapping("/signout")
     public String signOut(HttpServletResponse response){
-
 //        Cookie cookie = new Cookie("X-AUTH-TOKEN", null);
         Cookie cookie = new Cookie("AccessToken", null);
         cookie.setHttpOnly(true);
@@ -70,9 +71,14 @@ public class SignController {
         return responseService.getSuccessResult();
     }
 
+
     @PostMapping(value = "/reissue")
     public CommonResult reissue(HttpServletRequest request, HttpServletResponse response) {
-        TokenResponse tokenResponse = signService.reissue(request);
+        String RefreshToken = null;
+        Cookie cookie = WebUtils.getCookie(request, "RefreshToken");
+        if(cookie == null)   return responseService.getFailResult(-9999,"쿠키가 존재하지 않습니다");
+        RefreshToken = cookie.getValue();
+        TokenResponse tokenResponse = signService.reissue(TokenRequest.builder().refreshToken(RefreshToken).build());
         Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
@@ -114,6 +120,21 @@ public class SignController {
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //    @PostMapping(value = "/signin")
 //    public ResponseEntity<?> signin(@RequestBody @Valid UserSignIn request, HttpServletResponse response) {
 //        User user = signService.comparePassword(request);
@@ -150,4 +171,17 @@ public class SignController {
 //        KakaoProfile profile = kakaoService.getKakaoProfile(accessToken);
 //        User user = userJpaRepo.findByUidAndProvider(String.valueOf(profile.getId()), provider).orElseThrow(UserNotFoundException::new);
 //        return responseService.getSingleResult(jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles()));
+//    }
+
+
+//    @PostMapping(value = "/reissue")
+//    public CommonResult reissue(HttpServletRequest request, HttpServletResponse response) {
+//        TokenResponse tokenResponse = signService.reissue(request);
+//        Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
+//        accessCookie.setPath("/");
+//        response.addCookie(accessCookie);
+////        Cookie refreshCookie = new Cookie("RefreshToken", tokenResponse.getRefreshToken());
+////        refreshCookie.setPath("/");
+////        response.addCookie(refreshCookie);
+//        return responseService.getSuccessResult();
 //    }

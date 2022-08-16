@@ -25,7 +25,6 @@ import javax.validation.Valid;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/v1")
 public class SignController {
 
     @Autowired
@@ -33,9 +32,9 @@ public class SignController {
     private final SignService signService;
 
 
-
-    @PostMapping(value = "/signin")
+    @PostMapping("/signin")
     public SingleResult<TokenResponse> signIn(@RequestBody @Valid UserSignIn request, HttpServletResponse response) {
+        System.out.println("로그인을 시도");
         TokenResponse tokenResponse = signService.signIn(request);
 //        response.setHeader("X-AUTH-TOKEN", tokenResponse.getAccessToken());
 //        Cookie cookie = new Cookie("X-AUTH-TOKEN", tokenResponse.getAccessToken());
@@ -64,7 +63,7 @@ public class SignController {
         response.addCookie(cookie);
         return "로그아웃 성공";
     }
-    @PostMapping(value = "/signup")
+    @PostMapping("/signup")
     public CommonResult signup(@RequestBody @Valid UserSignUp request) {
 //        request.setPassword(passwordEncoder.encode(request.getPassword()));
         signService.join(request);
@@ -72,7 +71,7 @@ public class SignController {
     }
 
 
-    @PostMapping(value = "/reissue")
+    @PostMapping("/reissue")
     public CommonResult reissue(HttpServletRequest request, HttpServletResponse response) {
         String RefreshToken = null;
         Cookie cookie = WebUtils.getCookie(request, "RefreshToken");
@@ -89,28 +88,31 @@ public class SignController {
     }
 
 
-    @PostMapping(value = "/signin/{provider}")
+    @PostMapping("/signin/{provider}")
     public SingleResult<TokenResponse> signInByProvider(
             @PathVariable String provider,
             @RequestParam String socialToken,
             HttpServletResponse response) {
         TokenResponse tokenResponse = signService.signInByKakao(provider,socialToken);
-        Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
-        accessCookie.setPath("/");
-//        accessCookie.setHttpOnly(true);
-//        accessCookie.setSecure(true);
-        response.addCookie(accessCookie);
-        Cookie refreshCookie = new Cookie("RefreshToken", tokenResponse.getAccessToken());
-        refreshCookie.setPath("/");
-//        cookie.setHttpOnly(true);
-//        cookie.setSecure(true);
-        response.addCookie(refreshCookie);
+
+        response.setHeader("Set-Cookie", String.format("AccessToken=%s; Secure; SameSite=None",tokenResponse.getAccessToken()));
+        response.addHeader("Set-Cookie", String.format("RefreshToken=%s; Secure; SameSite=None",tokenResponse.getRefreshToken()));
+//        Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
+//        accessCookie.setPath("/");
+////        accessCookie.setHttpOnly(true);
+////        accessCookie.setSecure(true);
+//        response.addCookie(accessCookie);
+//        Cookie refreshCookie = new Cookie("RefreshToken", tokenResponse.getAccessToken());
+//        refreshCookie.setPath("/");
+////        cookie.setHttpOnly(true);
+////        cookie.setSecure(true);
+//        response.addCookie(refreshCookie);
 
         return responseService.
                 getSingleResult(tokenResponse);
     }
 
-    @PostMapping(value = "/signup/{provider}")
+    @PostMapping("/signup/{provider}")
     public CommonResult signupProvider( @PathVariable String provider,
                                        @RequestParam String accessToken,
                                     @RequestParam String name) {
@@ -149,7 +151,7 @@ public class SignController {
 //    }
 //    @PostMapping(value = "/signin")
 //    public SingleResult<String> signin(@RequestBody @Valid UserSignIn request) {
-//        User user = userJpaRepo.findByUid(request.getUid()).orElseThrow(CEmailSigninFailedException::new);
+//        User user = userJpaRepo.findByEmail(request.getEmail()).orElseThrow(CEmailSigninFailedException::new);
 //        if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
 //            throw new CEmailSigninFailedException();
 //
@@ -169,7 +171,7 @@ public class SignController {
 //            @RequestParam String accessToken) {
 //
 //        KakaoProfile profile = kakaoService.getKakaoProfile(accessToken);
-//        User user = userJpaRepo.findByUidAndProvider(String.valueOf(profile.getId()), provider).orElseThrow(UserNotFoundException::new);
+//        User user = userJpaRepo.findByEmailAndProvider(String.valueOf(profile.getId()), provider).orElseThrow(UserNotFoundException::new);
 //        return responseService.getSingleResult(jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles()));
 //    }
 

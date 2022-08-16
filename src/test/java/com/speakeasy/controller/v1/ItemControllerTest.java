@@ -200,7 +200,7 @@ class ItemControllerTest {
         itemRepository.save(item);
 
         User user = User.builder()
-                .uid("userid")
+                .email("userid")
                 .password("123")
                 .name("이름").build();
         userRepository.save(user);
@@ -241,7 +241,7 @@ class ItemControllerTest {
         itemRepository.save(item);
 
         User user = User.builder()
-                .uid("userid")
+                .email("userid")
                 .password("123")
                 .name("이름").build();
         userRepository.save(user);

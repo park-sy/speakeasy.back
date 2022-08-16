@@ -26,7 +26,13 @@ public class HelloController {
         log.info("Helloworld");
         return HELLO;
     }
-
+    @GetMapping(value = "/hello/string")
+    @ResponseBody
+    public String helloString() {
+        log.debug("Helloworld");
+        log.info("Helloworld");
+        return HELLO;
+    }
     @GetMapping(value = "/helloworld/json")
     @ResponseBody
     public Hello helloworldJson() {

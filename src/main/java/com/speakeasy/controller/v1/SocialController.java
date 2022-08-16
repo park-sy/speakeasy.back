@@ -57,7 +57,7 @@ public class SocialController {
                 .append("?client_id=").append(kakaoClientId)
                 .append("&response_type=code")
                 .append("&redirect_uri=").append(baseUrl).append(kakaoRedirect);
-
+        System.out.println(loginUrl);
         mav.addObject("loginUrl", loginUrl);
 //        mav.setViewName("social/login");
         return mav;
@@ -73,10 +73,13 @@ public class SocialController {
         KakaoAuth kakaoAuth = kakaoService.getKakaoTokenInfo(code);
         KakaoProfile profile =kakaoService.getKakaoProfile(kakaoAuth.getAccess_token());
         System.out.println(profile);
-        Optional<User> user= signService.getByUidAndProvider("kakao",profile);
-        // 이후 만약 null일 경우, 회원가입으로 이동 아닐 경우 로그인 진행
-
-        return kakaoAuth.getAccess_token();
+        Optional<User> user= signService.getByEmailAndProvider("kakao",profile);
+        System.out.println(user);
+        // 이후 만약 empty일 경우, 회원가입으로 이동 아닐 경우 로그인 진행
+        if(user.isEmpty()){
+            return kakaoAuth.getAccess_token()+" 가입화면 redirect";
+        }
+        else return kakaoAuth.getAccess_token()+" 로그인 후 메인페이지로 redirect";
     }
 
 }

@@ -3,6 +3,9 @@ package com.speakeasy.controller.v1;
 import com.speakeasy.config.security.JwtTokenProvider;
 
 import com.speakeasy.domain.User;
+import com.speakeasy.exception.CommunicationException;
+import com.speakeasy.exception.CookieNotFoundException;
+import com.speakeasy.exception.UserNotFoundException;
 import com.speakeasy.request.TokenRequest;
 import com.speakeasy.request.UserSignIn;
 import com.speakeasy.request.UserSignUp;
@@ -13,6 +16,8 @@ import com.speakeasy.response.SingleResult;
 import com.speakeasy.service.SignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.speakeasy.exception.UserExistException;
+
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.WebUtils;
@@ -22,6 +27,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -35,25 +41,30 @@ public class SignController {
     @PostMapping("/signin")
     public SingleResult<TokenResponse> signIn(@RequestBody @Valid UserSignIn request, HttpServletResponse response) {
         System.out.println("로그인을 시도");
+        //Access Token, RefreshToken 발행
         TokenResponse tokenResponse = signService.signIn(request);
-//        response.setHeader("X-AUTH-TOKEN", tokenResponse.getAccessToken());
-//        Cookie cookie = new Cookie("X-AUTH-TOKEN", tokenResponse.getAccessToken());
+        
         Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
         accessCookie.setPath("/");
-//        accessCookie.setHttpOnly(true);
-//        accessCookie.setSecure(true);
+        //테스트를 위해 잠시 주석 처리
+//         accessCookie.setHttpOnly(true);
+//         accessCookie.setSecure(true);
+
         response.addCookie(accessCookie);
         Cookie resfreshCookie = new Cookie("RefreshToken", tokenResponse.getRefreshToken());
         resfreshCookie.setPath("/");
 //        cookie.setHttpOnly(true);
 //        cookie.setSecure(true);
         response.addCookie(resfreshCookie);
+
         return responseService.
                 getSingleResult(tokenResponse);
+        //        response.setHeader("X-AUTH-TOKEN", tokenResponse.getAccessToken());
+        //        Cookie cookie = new Cookie("X-AUTH-TOKEN", tokenResponse.getAccessToken());
     }
 
     @PostMapping("/signout")
-    public String signOut(HttpServletResponse response){
+    public CommonResult signOut(HttpServletResponse response){
 //        Cookie cookie = new Cookie("X-AUTH-TOKEN", null);
         Cookie cookie = new Cookie("AccessToken", null);
         cookie.setHttpOnly(true);
@@ -61,7 +72,7 @@ public class SignController {
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return "로그아웃 성공";
+        return responseService.getSuccessResult();
     }
     @PostMapping("/signup")
     public CommonResult signup(@RequestBody @Valid UserSignUp request) {
@@ -70,12 +81,22 @@ public class SignController {
         return responseService.getSuccessResult();
     }
 
+    @GetMapping("/signup/check-email")
+    public CommonResult checkEmail(@RequestParam String email) {
+//        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        System.out.println(email);
+        Optional<User> user =signService.getByEmail(email);
+        System.out.println(user);
+        if(user.isEmpty()==true) return responseService.getSuccessResult();
+        else throw new UserExistException("이메일이 중복되었습니다");
+    }
 
-    @PostMapping("/reissue")
+    @GetMapping("/reissue")
     public CommonResult reissue(HttpServletRequest request, HttpServletResponse response) {
         String RefreshToken = null;
         Cookie cookie = WebUtils.getCookie(request, "RefreshToken");
-        if(cookie == null)   return responseService.getFailResult(-9999,"쿠키가 존재하지 않습니다");
+        if(cookie == null)  throw new CookieNotFoundException("쿠키가 존재하지 않습니다");
+
         RefreshToken = cookie.getValue();
         TokenResponse tokenResponse = signService.reissue(TokenRequest.builder().refreshToken(RefreshToken).build());
         Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
@@ -95,18 +116,19 @@ public class SignController {
             HttpServletResponse response) {
         TokenResponse tokenResponse = signService.signInByKakao(provider,socialToken);
 
-        response.setHeader("Set-Cookie", String.format("AccessToken=%s; Secure; SameSite=None",tokenResponse.getAccessToken()));
-        response.addHeader("Set-Cookie", String.format("RefreshToken=%s; Secure; SameSite=None",tokenResponse.getRefreshToken()));
-//        Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
-//        accessCookie.setPath("/");
+//        response.setHeader("Set-Cookie", String.format("AccessToken=%s; Secure; SameSite=None",tokenResponse.getAccessToken()));
+//        response.addHeader("Set-Cookie", String.format("RefreshToken=%s; Secure; SameSite=None",tokenResponse.getRefreshToken()));
+        Cookie accessCookie = new Cookie("AccessToken", tokenResponse.getAccessToken());
+        accessCookie.setPath("/");
 ////        accessCookie.setHttpOnly(true);
 ////        accessCookie.setSecure(true);
-//        response.addCookie(accessCookie);
-//        Cookie refreshCookie = new Cookie("RefreshToken", tokenResponse.getAccessToken());
-//        refreshCookie.setPath("/");
-////        cookie.setHttpOnly(true);
-////        cookie.setSecure(true);
-//        response.addCookie(refreshCookie);
+        response.addCookie(accessCookie);
+
+        Cookie refreshCookie = new Cookie("RefreshToken", tokenResponse.getAccessToken());
+        refreshCookie.setPath("/");
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(true);
+        response.addCookie(refreshCookie);
 
         return responseService.
                 getSingleResult(tokenResponse);

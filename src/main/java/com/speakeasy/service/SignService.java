@@ -46,6 +46,7 @@ public class SignService  {
 //    }
     // 현재는 여기서 loadUserByUsername를 구현하지 않음
     public void join(UserSignUp request){
+
         User user= User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -55,8 +56,13 @@ public class SignService  {
         userRepository.save(user);
     }
 
+    public Optional<User> getByEmail(String request){
+        return userRepository.findByEmail(request);
+    }
+
     public TokenResponse signIn(UserSignIn request){
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(EmailSigninFailedException::new);
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new EmailSigninFailedException();
         }
@@ -106,12 +112,12 @@ public class SignService  {
     }
     public Optional<User> getByEmailAndProvider(String provider, KakaoProfile profile){
         Optional<User> user = userRepository.findByEmailAndProvider(String.valueOf(profile.getId()), provider);
-        if(user.isPresent()){
-            System.out.println("로그인 과정");
-        }
-        else{
-            System.out.println("회원 가입 과정");
-        }
+//        if(user.isPresent()){
+//            System.out.println("로그인 과정");
+//        }
+//        else{
+//            System.out.println("회원 가입 과정");
+//        }
         return user;
 
     }

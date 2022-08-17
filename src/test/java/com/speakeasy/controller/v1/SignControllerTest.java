@@ -21,8 +21,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -159,10 +162,27 @@ class SignControllerTest {
                 .andReturn();
 
         //reissue
-        mockMvc .perform(post("/reissue")
+        mockMvc .perform(get("/reissue")
                         .cookie(result.getResponse().getCookies()))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("이메일 중복을 확인한다")
+    void checkEmail() throws Exception{
+        UserSignUp user = UserSignUp
+                .builder()
+                .email("id@naver.com")
+                .password("1234")
+                .name("이름")
+                .build();
+        signService.join(user);
+        mockMvc .perform(get("/signup/check-email?email=id@naver.com"))
+                .andExpect(status().isConflict())
+                .andDo(print());
+
 
     }
 }

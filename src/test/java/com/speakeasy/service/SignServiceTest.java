@@ -33,7 +33,7 @@ class SignServiceTest {
     void join() {
         UserSignUp user = UserSignUp
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .name("이름")
                 .build();
@@ -46,14 +46,14 @@ class SignServiceTest {
     void signIn() {
         UserSignUp user = UserSignUp
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .name("이름")
                 .build();
         signService.join(user);
         UserSignIn request = UserSignIn
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .build();
         TokenResponse tokenResponse = signService.signIn(request);
@@ -65,14 +65,14 @@ class SignServiceTest {
     void reissue() {
         UserSignUp user = UserSignUp
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .name("이름")
                 .build();
         signService.join(user);
         UserSignIn request = UserSignIn
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .build();
         TokenResponse tokenResponse = signService.signIn(request);

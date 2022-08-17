@@ -44,9 +44,11 @@ public class SignService  {
 //    public UserDetails loadUserByUsername(String userPk) {
 //        return userRepository.findById(Long.valueOf(userPk)).orElseThrow(UserNotFoundException::new);
 //    }
+    // 현재는 여기서 loadUserByUsername를 구현하지 않음
     public void join(UserSignUp request){
+
         User user= User.builder()
-                .uid(request.getUid())
+                .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .roles(Collections.singletonList("ROLE_USER"))
@@ -54,15 +56,20 @@ public class SignService  {
         userRepository.save(user);
     }
 
+    public Optional<User> getByEmail(String request){
+        return userRepository.findByEmail(request);
+    }
+
     public TokenResponse signIn(UserSignIn request){
-        User user = userRepository.findByUid(request.getUid()).orElseThrow(EmailSigninFailedException::new);
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(EmailSigninFailedException::new);
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new EmailSigninFailedException();
         }
         String accessToken = jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles(), ACCESS_TOKEN_EXPIRE_TIME);
         String refreshToken = jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles(), REFRESH_TOKEN_EXPIRE_TIME);
         redisTemplate.opsForValue()
-                .set("RT:" + user.getUid(), refreshToken , REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+                .set("RT:" + user.getEmail(), refreshToken , REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         return TokenResponse
                 .builder()
                 .grantType(BEARER_TYPE)
@@ -73,7 +80,7 @@ public class SignService  {
     }
 
 //    public User comparePassword(UserSignIn request){
-//        User user = userRepository.findByUid(request.getUid()).orElseThrow(EmailSigninFailedException::new);
+//        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(EmailSigninFailedException::new);
 //        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 //            throw new EmailSigninFailedException();
 //        }
@@ -81,7 +88,7 @@ public class SignService  {
 //    }
     public TokenResponse signInByKakao(String provider, String kakaoToken){
         KakaoProfile profile = kakaoService.getKakaoProfile(kakaoToken);
-        User user = userRepository.findByUidAndProvider(String.valueOf(profile.getId()), provider).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByEmailAndProvider(String.valueOf(profile.getId()), provider).orElseThrow(UserNotFoundException::new);
         String accessToken = jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles(), ACCESS_TOKEN_EXPIRE_TIME);
         String refreshToken = jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles(), REFRESH_TOKEN_EXPIRE_TIME);
         return TokenResponse
@@ -95,22 +102,22 @@ public class SignService  {
 
     public void joinByKakao(String provider, String accessToken, String name){
         KakaoProfile profile = kakaoService.getKakaoProfile(accessToken);
-        Optional<User> user = userRepository.findByUidAndProvider(String.valueOf(profile.getId()), provider);
+        Optional<User> user = userRepository.findByEmailAndProvider(String.valueOf(profile.getId()), provider);
         userRepository.save(User.builder()
-                .uid(String.valueOf(profile.getId()))
+                .email(String.valueOf(profile.getId()))
                 .provider(provider)
                 .name(name)
                 .roles(Collections.singletonList("ROLE_USER"))
                 .build());
     }
-    public Optional<User> getByUidAndProvider(String provider, KakaoProfile profile){
-        Optional<User> user = userRepository.findByUidAndProvider(String.valueOf(profile.getId()), provider);
-        if(user.isPresent()){
-            System.out.println("로그인 과정");
-        }
-        else{
-            System.out.println("회원 가입 과정");
-        }
+    public Optional<User> getByEmailAndProvider(String provider, KakaoProfile profile){
+        Optional<User> user = userRepository.findByEmailAndProvider(String.valueOf(profile.getId()), provider);
+//        if(user.isPresent()){
+//            System.out.println("로그인 과정");
+//        }
+//        else{
+//            System.out.println("회원 가입 과정");
+//        }
         return user;
 
     }
@@ -146,80 +153,7 @@ public class SignService  {
 //         토큰 발급
         return TokenResponse.builder().accessToken(newAccessToken).refreshToken(tokenRequest.getRefreshToken()).build();
     }
-
-
-    //리프레쉬 토큰을 재생성하는 로직. 구현 중
-//    @Transactional
-//    public TokenResponse reissue(TokenResponse tokenRequest) { //추후 리퀘스트로 수정
-//
-//        // 1. Refresh Token 검증
-//        if (!jwtTokenProvider.validateToken(tokenRequest.getRefreshToken())) {
-//            throw new RuntimeException("Refresh Token 이 유효하지 않습니다.");
-//        }
-//
-//        // 2. Access Token 에서 Member ID 가져오기
-//        Authentication authentication = jwtTokenProvider.getAuthentication(tokenRequest.getAccessToken());
-//
-//        // 3. Redis 에서 User email 을 기반으로 저장된 Refresh Token 값을 가져옵니다.
-//        String refreshToken = (String)redisTemplate.opsForValue().get("RT:" + authentication.getName());
-//        if(!refreshToken.equals(tokenRequest.getRefreshToken())) {
-//            return null;
-//        }
-//        System.out.println("refreshToken");
-//        System.out.println( refreshToken);
-//        User principal = (User) authentication.getPrincipal();
-////        System.out.println( principal.getRoles());
-//
-//        // 4. Refresh Token 일치하는지 검사
-//        if (!refreshToken.equals(tokenRequest.getRefreshToken())) {
-//            throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
-//        }
-//
-//        // 5. 새로운 토큰 생성
-//        String newRefreshToken = jwtTokenProvider.createToken(jwtTokenProvider.getUserPk(refreshToken),principal.getRoles(),REFRESH_TOKEN_EXPIRE_TIME);
-//
-//        // 6. 저장소 정보 업데이트
-//        redisTemplate.opsForValue()
-//                .set("RT:" + authentication.getName(), newRefreshToken, REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
-//
-//        // 토큰 발급
-//        return TokenResponse.builder().accessToken(tokenRequest.getAccessToken()).refreshToken(newRefreshToken).build();
-//    }
-//    @Transactional
-//    public TokenResponse reissue(HttpServletRequest request) { //추후 리퀘스트로 수정
-//        String token = null;
-//        Cookie cookie = WebUtils.getCookie(request, "RefreshToken");
-//        if(cookie != null) token = cookie.getValue();
-//
-//        // 1. Refresh Token 검증
-//        if (!jwtTokenProvider.validateToken(token)) {
-//            throw new RuntimeException("Refresh Token 이 유효하지 않습니다.");
-//        }
-//
-//        // 2. Access Token 에서 Member ID 가져오기
-//        Authentication authentication = jwtTokenProvider.getAuthentication(token);
-//
-//        // 3. Redis 에서 User email 을 기반으로 저장된 Refresh Token 값을 가져옵니다.
-//        String refreshToken = (String)redisTemplate.opsForValue().get("RT:" + authentication.getName());
-//        if(!refreshToken.equals(token)) {
-//            return null;
-//        }
-//        System.out.println("refreshToken");
-//        System.out.println( refreshToken);
-//        User principal = (User) authentication.getPrincipal();
-////        System.out.println( principal.getRoles());
-//
-//        // 4. Refresh Token 일치하는지 검사
-//        if (!refreshToken.equals(token)) {
-//            throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
-//        }
-//
-////         5. 새로운 Access 토큰 생성
-//        String newAccessToken = jwtTokenProvider.createToken(jwtTokenProvider.getUserPk(refreshToken),principal.getRoles(),REFRESH_TOKEN_EXPIRE_TIME);
-//
-////         토큰 발급
-//        return TokenResponse.builder().accessToken(newAccessToken).refreshToken(token).build();
-//    }
+    
 
 }
 

@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @ToString
 public class UserSignUp {
     @NotBlank(message = "아이디를 입력해주세요")
-    private String uid;
+    private String email;
 
     @NotBlank(message = "이름을 입력해주세요")
     private String name;
@@ -20,9 +20,10 @@ public class UserSignUp {
     @NotBlank(message = "비밀번호를 입력해주세요")
     private String password;
 
+
     @Builder
-    public UserSignUp(String uid, String name, String password) {
-        this.uid = uid;
+    public UserSignUp(String email, String name, String password) {
+        this.email = email;
         this.name = name;
         this.password = password;
     }

@@ -21,8 +21,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,7 +57,7 @@ class SignControllerTest {
     void signIn() throws Exception{
         UserSignUp user = UserSignUp
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .name("이름")
                 .build();
@@ -62,11 +65,11 @@ class SignControllerTest {
         Assertions.assertEquals(1, userRepository.count());
         UserSignIn request = UserSignIn
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .build();
         String json = objectMapper.writeValueAsString(request);
-        mockMvc .perform(post("/v1/signin")
+        mockMvc .perform(post("/signin")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -80,7 +83,7 @@ class SignControllerTest {
         //회원가입
         UserSignUp user = UserSignUp
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .name("이름")
                 .build();
@@ -88,13 +91,13 @@ class SignControllerTest {
         Assertions.assertEquals(1, userRepository.count());
         UserSignIn request = UserSignIn
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
         //로그인
-        MvcResult result = mockMvc .perform(post("/v1/signin")
+        MvcResult result = mockMvc .perform(post("/signin")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -102,7 +105,7 @@ class SignControllerTest {
                 .andReturn();
 
         //로그아웃
-        mockMvc .perform(post("/v1/signout")
+        mockMvc .perform(post("/signout")
                         .cookie(result.getResponse().getCookies()))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -115,12 +118,12 @@ class SignControllerTest {
     void signup() throws Exception{
         UserSignUp request = UserSignUp
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .name("이름")
                 .build();
         String json = objectMapper.writeValueAsString(request);
-        mockMvc .perform(post("/v1/signup")
+        mockMvc .perform(post("/signup")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -129,7 +132,7 @@ class SignControllerTest {
         Assertions.assertEquals(1, userRepository.count());
         User user = userRepository.findAll().get(0);
 
-        assertEquals("id@naver.com",user.getUid());
+        assertEquals("id@naver.com",user.getEmail());
         assertEquals("이름",user.getName());
 
     }
@@ -139,19 +142,19 @@ class SignControllerTest {
     void reissue() throws Exception{
         UserSignUp user = UserSignUp
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .name("이름")
                 .build();
         signService.join(user);
         UserSignIn request = UserSignIn
                 .builder()
-                .uid("id@naver.com")
+                .email("id@naver.com")
                 .password("1234")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
-        MvcResult result = mockMvc .perform(post("/v1/signin")
+        MvcResult result = mockMvc .perform(post("/signin")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -159,10 +162,27 @@ class SignControllerTest {
                 .andReturn();
 
         //reissue
-        mockMvc .perform(post("/v1/reissue")
+        mockMvc .perform(get("/reissue")
                         .cookie(result.getResponse().getCookies()))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("이메일 중복을 확인한다")
+    void checkEmail() throws Exception{
+        UserSignUp user = UserSignUp
+                .builder()
+                .email("id@naver.com")
+                .password("1234")
+                .name("이름")
+                .build();
+        signService.join(user);
+        mockMvc .perform(get("/signup/check-email?email=id@naver.com"))
+                .andExpect(status().isConflict())
+                .andDo(print());
+
 
     }
 }

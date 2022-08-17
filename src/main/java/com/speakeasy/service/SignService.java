@@ -1,30 +1,24 @@
 package com.speakeasy.service;
 
 import com.speakeasy.config.security.JwtTokenProvider;
-import com.speakeasy.domain.User;
+import com.speakeasy.domain.user.User;
 import com.speakeasy.exception.EmailSigninFailedException;
 import com.speakeasy.exception.UserNotFoundException;
 import com.speakeasy.repository.UserRepository;
 import com.speakeasy.request.UserSignIn;
 import com.speakeasy.request.UserSignUp;
-import com.speakeasy.response.KakaoAuth;
 import com.speakeasy.response.KakaoProfile;
 import com.speakeasy.response.TokenResponse;
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Optional;

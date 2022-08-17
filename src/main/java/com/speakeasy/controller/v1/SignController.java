@@ -1,8 +1,5 @@
 package com.speakeasy.controller.v1;
 
-import com.speakeasy.config.security.JwtTokenProvider;
-
-import com.speakeasy.domain.User;
 import com.speakeasy.request.UserSignIn;
 import com.speakeasy.request.UserSignUp;
 import com.speakeasy.response.CommonResult;
@@ -12,10 +9,8 @@ import com.speakeasy.response.SingleResult;
 import com.speakeasy.service.SignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

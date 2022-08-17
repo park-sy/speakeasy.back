@@ -5,7 +5,7 @@ package com.speakeasy.controller.v1;
 
 
 import com.google.gson.Gson;
-import com.speakeasy.domain.User;
+import com.speakeasy.domain.user.User;
 import com.speakeasy.response.KakaoAuth;
 import com.speakeasy.response.KakaoProfile;
 import com.speakeasy.service.KakaoService;

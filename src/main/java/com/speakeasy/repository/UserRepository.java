@@ -1,6 +1,6 @@
 package com.speakeasy.repository;
 
-import com.speakeasy.domain.User;
+import com.speakeasy.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

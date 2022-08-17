@@ -1,4 +1,4 @@
-package com.speakeasy.domain;
+package com.speakeasy.domain.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

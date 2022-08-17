@@ -1,6 +1,6 @@
-package com.speakeasy.repository;
+package com.speakeasy.repository.perfume;
 
-import com.speakeasy.domain.Note;
+import com.speakeasy.domain.perfume.Note;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {

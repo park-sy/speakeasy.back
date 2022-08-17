@@ -1,15 +1,15 @@
-package com.speakeasy.response;
+package com.speakeasy.response.perfume;
 
-import com.speakeasy.domain.Note;
+import com.speakeasy.domain.perfume.Note;
 import lombok.Getter;
 
 @Getter
-public class ItemNotesList {
+public class PerfumeNotesList {
 
     private final String name;
     private final String img;
 
-    public ItemNotesList(Note note){
+    public PerfumeNotesList(Note note){
         this.name = note.getName();
         this.img = note.getImg();
     }

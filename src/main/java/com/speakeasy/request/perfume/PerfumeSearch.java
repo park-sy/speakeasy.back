@@ -1,4 +1,4 @@
-package com.speakeasy.request;
+package com.speakeasy.request.perfume;
 
 
 import lombok.Builder;
@@ -13,7 +13,7 @@ import static java.lang.Math.min;
 //페이지서치를 위한 클래스 구현
 @Getter //getter, setter 사용
 @Setter
-public class ItemSearch {
+public class PerfumeSearch {
 
     private static final int MAX_SIZE = 2000;
 
@@ -21,8 +21,8 @@ public class ItemSearch {
     private Integer page;
     private Integer size;
     private Integer gender;
-    private float goePoints;
-    private float loePoints;
+    private Integer goePoints;
+    private Integer loePoints;
     private List<Long> topNotes;
 //    private List<Long> heartNotes;
 //    private List<Long> baseNotes;
@@ -32,7 +32,7 @@ public class ItemSearch {
 
 
     @Builder
-    public ItemSearch(Integer page, Integer size, float goePoints, float loePoints, List<Long> topNotes, List<String> brand, List<String> searchKey) {
+    public PerfumeSearch(Integer page, Integer size, Integer goePoints, Integer loePoints, List<Long> topNotes, List<String> brand, List<String> searchKey) {
         this.page = page == null ? 1 : page;
         this.size = size == null ? 10 :size;
         this.goePoints = goePoints;

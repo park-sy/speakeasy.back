@@ -1,9 +1,16 @@
 package com.speakeasy.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.speakeasy.domain.*;
+import com.speakeasy.domain.perfume.Note;
+import com.speakeasy.domain.perfume.Perfume;
+import com.speakeasy.domain.perfume.PerfumeComment;
+import com.speakeasy.domain.perfume.PerfumeImages;
+import com.speakeasy.domain.user.User;
 import com.speakeasy.repository.*;
-import com.speakeasy.request.ItemCommentCreate;
+import com.speakeasy.repository.perfume.NoteRepository;
+import com.speakeasy.repository.perfume.PerfumeCommentRepository;
+import com.speakeasy.repository.perfume.PerfumeImgRepository;
+import com.speakeasy.repository.perfume.PerfumeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ItemControllerTest {
+class PerfumeControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -37,22 +43,22 @@ class ItemControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private PerfumeRepository perfumeRepository;
 
     @Autowired
-    private ItemCommentRepository itemCommentRepository;
+    private PerfumeCommentRepository perfumeCommentRepository;
     @Autowired
     private NoteRepository noteRepository;
     @Autowired
-    private ItemImgRepository itemImgRepository;
+    private PerfumeImgRepository perfumeImgRepository;
     @Autowired
     private UserRepository userRepository;
 
     @BeforeEach
     void clean(){
-        itemRepository.deleteAll();
-        itemCommentRepository.deleteAll();
-        itemImgRepository.deleteAll();
+        perfumeRepository.deleteAll();
+        perfumeCommentRepository.deleteAll();
+        perfumeImgRepository.deleteAll();
         userRepository.deleteAll();
         noteRepository.deleteAll();
     }
@@ -61,16 +67,16 @@ class ItemControllerTest {
     @DisplayName("아이템 페이지 조회")
     void test1() throws Exception {
         //given
-        List<Item> requestItems = IntStream.range(0,20)
-                .mapToObj(i -> Item.builder()
+        List<Perfume> requestPerfumes = IntStream.range(0,20)
+                .mapToObj(i -> Perfume.builder()
                         .name("상품" +i)
                         .brand("브랜드"+i)
                         .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
-        itemRepository.saveAll(requestItems);
+        perfumeRepository.saveAll(requestPerfumes);
 
         //expected
-        mockMvc.perform(get("/items")
+        mockMvc.perform(get("/perfumes")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()",is(10)))
@@ -83,16 +89,16 @@ class ItemControllerTest {
     @DisplayName("아이템 페이지 조회/페이지,갯수 추가")
     void test2() throws Exception {
         //given
-        List<Item> requestItems = IntStream.range(0,20)
-                .mapToObj(i -> Item.builder()
+        List<Perfume> requestPerfumes = IntStream.range(0,20)
+                .mapToObj(i -> Perfume.builder()
                         .name("상품" +i)
                         .brand("브랜드"+i)
                         .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
-        itemRepository.saveAll(requestItems);
+        perfumeRepository.saveAll(requestPerfumes);
 
         //expected
-        mockMvc.perform(get("/items?page=2&size=10")
+        mockMvc.perform(get("/perfumes?page=2&size=10")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()",is(10)))
@@ -105,13 +111,13 @@ class ItemControllerTest {
     @DisplayName("아이템 필터링 조회")
     void test3() throws Exception {
         //given
-        List<Item> requestItems = IntStream.range(0,20)
-                .mapToObj(i -> Item.builder()
+        List<Perfume> requestPerfumes = IntStream.range(0,20)
+                .mapToObj(i -> Perfume.builder()
                         .name("상품" +i)
                         .brand("브랜드"+i)
                         .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
-        itemRepository.saveAll(requestItems);
+        perfumeRepository.saveAll(requestPerfumes);
         List<Note> requestNotes = IntStream.range(0,20)
                         .mapToObj(i ->Note.builder()
                                 .name("노트"+i)
@@ -119,7 +125,7 @@ class ItemControllerTest {
                                 .build()).collect(Collectors.toList());
         noteRepository.saveAll(requestNotes);
         //expected
-        mockMvc.perform(get("/items?page=1&size=10&topNotes=1,2")
+        mockMvc.perform(get("/perfumes?page=1&size=10&topNotes=1,2")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -130,7 +136,7 @@ class ItemControllerTest {
     @DisplayName("아이템 상세정보")
     void test4() throws Exception {
         //given
-        Item item = Item.builder()
+        Perfume perfume = Perfume.builder()
                 .name("상품")
                 .ratingPoints(50L)
                 .scentPoints(55L)
@@ -140,13 +146,13 @@ class ItemControllerTest {
                 .valueOfMoneyPoints(46L)
                 .votes(10L).build();
 
-        itemRepository.save(item);
+        perfumeRepository.save(perfume);
 
         //expected
-        mockMvc.perform(get("/items/{itemId}",item.getId())
+        mockMvc.perform(get("/perfumes/{perfumeId}",perfume.getId())
                     .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(item.getId()))
+                .andExpect(jsonPath("$.id").value(perfume.getId()))
                 .andExpect(jsonPath("$.name").value("상품"))
                 .andDo(print());
 
@@ -156,25 +162,25 @@ class ItemControllerTest {
     @DisplayName("아이템 상세정보 이미지")
     void test5() throws Exception {
         //given
-        Item item = Item.builder()
+        Perfume perfume = Perfume.builder()
                 .name("상품").build();
 
-        itemRepository.save(item);
+        perfumeRepository.save(perfume);
 
-        ItemImages images1 = ItemImages.builder()
+        PerfumeImages images1 = PerfumeImages.builder()
                 .originFileName("123")
                 .newFileName("123")
-                .item(item).build();
-        itemImgRepository.save(images1);
+                .perfume(perfume).build();
+        perfumeImgRepository.save(images1);
 
-        ItemImages images2 = ItemImages.builder()
+        PerfumeImages images2 = PerfumeImages.builder()
                 .originFileName("456")
                 .newFileName("444")
-                .item(item).build();
-        itemImgRepository.save(images2);
+                .perfume(perfume).build();
+        perfumeImgRepository.save(images2);
 
         //expected
-        mockMvc.perform(get("/items/{itemId}/img",item.getId())
+        mockMvc.perform(get("/perfumes/{perfumeId}/img",perfume.getId())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -184,9 +190,9 @@ class ItemControllerTest {
     @DisplayName("댓글 가져오기")
     void test6() throws Exception{
         //given
-        Item item = Item.builder()
+        Perfume perfume = Perfume.builder()
                 .name("상품").build();
-        itemRepository.save(item);
+        perfumeRepository.save(perfume);
 
         User user = User.builder()
                 .uid("userid")
@@ -194,27 +200,27 @@ class ItemControllerTest {
                 .name("이름").build();
         userRepository.save(user);
 
-        ItemComment parent = ItemComment.builder()
+        PerfumeComment parent = PerfumeComment.builder()
                 .comment("부모")
                 .user(user)
-                .item(item).build();
-        itemCommentRepository.save(parent);
+                .perfume(perfume).build();
+        perfumeCommentRepository.save(parent);
 
-        ItemComment children = ItemComment.builder()
+        PerfumeComment children = PerfumeComment.builder()
                 .comment("자식")
                 .user(user)
                 .parent(parent)
-                .item(item).build();
-        itemCommentRepository.save(children);
+                .perfume(perfume).build();
+        perfumeCommentRepository.save(children);
 
-        ItemComment parent2 = ItemComment.builder()
+        PerfumeComment parent2 = PerfumeComment.builder()
                 .comment("부모2")
                 .user(user)
-                .item(item).build();
-        itemCommentRepository.save(parent2);
+                .perfume(perfume).build();
+        perfumeCommentRepository.save(parent2);
 
         //expected
-        mockMvc.perform(get("/items/{itemId}/comments",item.getId())
+        mockMvc.perform(get("/perfumes/{perfumeId}/comments",perfume.getId())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -224,9 +230,9 @@ class ItemControllerTest {
     @DisplayName("댓글 삭제하기")
     void test7() throws Exception{
         //given
-        Item item = Item.builder()
+        Perfume perfume = Perfume.builder()
                 .name("상품").build();
-        itemRepository.save(item);
+        perfumeRepository.save(perfume);
 
         User user = User.builder()
                 .uid("userid")
@@ -234,31 +240,31 @@ class ItemControllerTest {
                 .name("이름").build();
         userRepository.save(user);
 
-        ItemComment parent = ItemComment.builder()
+        PerfumeComment parent = PerfumeComment.builder()
                 .comment("부모")
                 .user(user)
-                .item(item).build();
-        itemCommentRepository.save(parent);
+                .perfume(perfume).build();
+        perfumeCommentRepository.save(parent);
 
-        ItemComment children = ItemComment.builder()
+        PerfumeComment children = PerfumeComment.builder()
                 .comment("자식")
                 .user(user)
                 .parent(parent)
-                .item(item).build();
-        itemCommentRepository.save(children);
+                .perfume(perfume).build();
+        perfumeCommentRepository.save(children);
 
-        ItemComment parent2 = ItemComment.builder()
+        PerfumeComment parent2 = PerfumeComment.builder()
                 .comment("부모2")
                 .user(user)
-                .item(item).build();
-        itemCommentRepository.save(parent2);
+                .perfume(perfume).build();
+        perfumeCommentRepository.save(parent2);
 
         //expected
-        mockMvc.perform(delete("/items/{itemId}/comments/{commentId}",item.getId(),parent.getId())
+        mockMvc.perform(delete("/perfumes/{perfumeId}/comments/{commentId}",perfume.getId(),parent.getId())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
-        mockMvc.perform(get("/items/{itemId}/comments",item.getId())
+        mockMvc.perform(get("/perfumes/{perfumeId}/comments",perfume.getId())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -268,7 +274,7 @@ class ItemControllerTest {
     @DisplayName("아이템 조회수")
     void test8() throws Exception {
         //given
-        Item item = Item.builder()
+        Perfume perfume = Perfume.builder()
                 .name("상품")
                 .ratingPoints(50L)
                 .scentPoints(55L)
@@ -278,15 +284,15 @@ class ItemControllerTest {
                 .valueOfMoneyPoints(46L)
                 .votes(10L).build();
 
-        itemRepository.save(item);
-        mockMvc.perform(get("/items/{itemId}",item.getId()));
-        mockMvc.perform(get("/items/{itemId}",item.getId()));
+        perfumeRepository.save(perfume);
+        mockMvc.perform(get("/perfumes/{perfumeId}",perfume.getId()));
+        mockMvc.perform(get("/perfumes/{perfumeId}",perfume.getId()));
 
         //expected
-        mockMvc.perform(get("/items/{itemId}",item.getId())
+        mockMvc.perform(get("/perfumes/{perfumeId}",perfume.getId())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(item.getId()))
+                .andExpect(jsonPath("$.id").value(perfume.getId()))
                 .andExpect(jsonPath("$.name").value("상품"))
                 .andDo(print());
 

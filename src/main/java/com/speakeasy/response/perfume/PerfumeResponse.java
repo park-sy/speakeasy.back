@@ -1,12 +1,11 @@
-package com.speakeasy.response;
+package com.speakeasy.response.perfume;
 
-import com.querydsl.core.Tuple;
-import com.speakeasy.domain.Item;
+import com.speakeasy.domain.perfume.Perfume;
 import lombok.Getter;
 
 //응답 처리를 위한 클래스 생성
 @Getter
-public class ItemResponse {
+public class PerfumeResponse {
 
     private final Long id;
     private final String name;
@@ -14,7 +13,7 @@ public class ItemResponse {
 
 
 //    @Builder //빌더 패턴 새용
-//    public ItemResponse(Long id, String name, String topNotes, String brand, String season) {
+//    public PerfumeResponse(Long id, String name, String topNotes, String brand, String season) {
 //        this.id = id;
 //        this.name = name;
 //        this.topNotes = topNotes;
@@ -23,10 +22,10 @@ public class ItemResponse {
 //        this.mainImg = path+name+"main.jpg";
 //    }
 
-    public ItemResponse(Item item) {
-        this.id = item.getId();
-        this.name = item.getName();
-        this.brand = item.getBrand();
+    public PerfumeResponse(Perfume perfume) {
+        this.id = perfume.getId();
+        this.name = perfume.getName();
+        this.brand = perfume.getBrand();
     }
 
 }

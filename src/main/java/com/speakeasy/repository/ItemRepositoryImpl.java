@@ -1,22 +1,18 @@
 package com.speakeasy.repository;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.util.StringUtils;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.speakeasy.domain.Item;
-import com.speakeasy.domain.QItem;
 import com.speakeasy.request.ItemSearch;
-import com.speakeasy.response.ItemResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.speakeasy.domain.QItem.item;
+import static com.speakeasy.domain.QNote.note;
 
 @RequiredArgsConstructor //자동으로 생성자 주입
 @ToString
@@ -28,34 +24,69 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
     public List<Item> getList(ItemSearch itemSearch){
         //JPAQueryFactory의 내무 메소드를 통해 페이지 규격 설정
         return jpaQueryFactory
-                .selectFrom(item)
+                .select(item).from(item)
                 .where(
-//                        eqtopNotes(itemSearch.getTopNotes()),
-                        eqbrand(itemSearch.getBrand())
-//                        search(itemSearch.getSearchKey())
+                        eqtopNotes(itemSearch.getTopNotes()),
+                        eqbrand(itemSearch.getBrand()),
+                        goePoints(itemSearch.getGoePoints()),
+                        loePoints(itemSearch.getLoePoints())
                 )
                 .limit(itemSearch.getSize())
                 .offset(itemSearch.getOffset())
                 .orderBy(item.id.desc())
                 .fetch();
     }
-
-    //BooleanExpression을 통한 동적 쿼리문 작성
-//    private BooleanExpression eqtopNotes(List<String> topNotes){
-//        if(topNotes == null){
-//            return null;
-//        }
-//        item.topNotes.in(topNotes).and(item.topNotes.like("11"));
-//        return item.topNotes.in(topNotes);
+//    public List<Tuple> getList2(ItemSearch itemSearch){
+//        return jpaQueryFactory
+//                .select(item.id, item.name, item.brand,
+//
+//                .from(item)
+//                .where()
+//                .limit(itemSearch.getSize())
+//                .offset(itemSearch.getOffset())
+//                .orderBy(item.id.desc())
+//                .fetch();
 //    }
+    //BooleanExpression을 통한 동적 쿼리문 작성
+    private BooleanExpression eqtopNotes(List<Long> topNotes){
+        if(topNotes == null){
+            return null;
+        }
 
+        List<Long> itemId = jpaQueryFactory
+                .select(item.id).from(item,note).join(item.topNotes,note)
+                .where(note.id.in(topNotes)).fetch();
+        return item.id.in(itemId);
+    }
+//    private BooleanExpression eqSeason(String season){
+//        if(season == null) return null;
+//        List<Map<String, Long>> hashMap = jpaQueryFactory
+//                .select(item.season).from(item)
+//                .where(item.season.)
+//                .fetch();
+//        return null;
+//    }
     private BooleanExpression eqbrand(List<String> brand){
         if(brand == null){
             return null;
         }
+
         return item.brand.in(brand);
     }
 
+    private BooleanExpression goePoints(float avgPoints){
+        if(avgPoints == 0){
+            return null;
+        }
+        return item.scentPoints.divide(item.votes).goe(avgPoints);
+    }
+
+    private BooleanExpression loePoints(float avgPoints){
+        if(avgPoints == 0){
+            return null;
+        }
+        return item.scentPoints.divide(item.votes).loe(avgPoints);
+    }
 //    private BooleanExpression search(List<String> searchKey){
 //        if(searchKey == null){
 //            return null;
@@ -65,12 +96,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
 //    }
 
 
-//    private BooleanExpression goeMinPrice(Integer minPrice){
-//        if(minPrice == null){
-//            return null;
-//        }
-//        return item.minPrice.goe(minPrice);
-//    }
+
     //    private BooleanExpression loeMinPrice(Integer minPrice){
 //        if(minPrice == null){
 //            return null;

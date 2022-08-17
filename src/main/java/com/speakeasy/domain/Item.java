@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -23,51 +24,55 @@ public class Item {
     private Long id;
     private String name;
     private String brand;
-
-    @Column(length = 3000)
-    private String url;
-
-    @Column(columnDefinition = "json")
-    @Type(type = "json")
-    private Set<Long> topNotes;
-    @Column(columnDefinition = "json")
-    @Type(type = "json")
-    private Set<Long> heartNotes;
-
-    @Column(columnDefinition = "json")
-    @Type(type = "json")
-    private Set<Long> baseNotes;
+    private Integer year;
+    private Integer gender;
     @ManyToMany
-    @JoinTable(name = "item_notes"
+    @JoinTable(name = "item_top_notes"
             ,joinColumns = @JoinColumn(name = "item_id")
             ,inverseJoinColumns = @JoinColumn(name = "note_id"))
-    private Set<Note> tmpNotes;
+    private Set<Note> topNotes;
 
     @ManyToMany
-    @JoinTable(name = "item_notes"
+    @JoinTable(name = "item_heart_notes"
             ,joinColumns = @JoinColumn(name = "item_id")
             ,inverseJoinColumns = @JoinColumn(name = "note_id"))
-    private Set<Note> tmp2Notes;
+    private Set<Note> heartNotes;
 
-    private Long ratingPoints;
-    private Long ratingVotes;
-    private Long scentPoints;
-    private Long scentVotes;
-    private Long longevityPoints;
-    private Long longevityVotes;
-    private Long sillagePoints;
-    private Long sillageVotes;
-    private Long bottlePoints;
-    private Long bottleVotes;
-    private Long valueOfMoneyPoints;
-    private Long valueOfMoneyVotes;
+    @ManyToMany
+    @JoinTable(name = "item_base_notes"
+            ,joinColumns = @JoinColumn(name = "item_id")
+            ,inverseJoinColumns = @JoinColumn(name = "note_id"))
+    private Set<Note> baseNotes;
 
-    private String type;
-    private String season;
-    private String occasion;
-    private String audience;
+    @Builder.Default
+    private Long ratingPoints = 0L;
+    @Builder.Default
+    private Long scentPoints= 0L;
+    @Builder.Default
+    private Long longevityPoints= 0L;
+    @Builder.Default
+    private Long sillagePoints= 0L;
+    @Builder.Default
+    private Long bottlePoints= 0L;
+    @Builder.Default
+    private Long valueOfMoneyPoints= 0L;
+    @Builder.Default
+    private Long votes= 0L;
+
+    @Column(columnDefinition = "json")
+    @Type(type = "json")
+    private HashMap<String,Long> type;
+    @Column(columnDefinition = "json")
+    @Type(type = "json")
+    private HashMap<String,Long> season;
+    @Column(columnDefinition = "json")
+    @Type(type = "json")
+    private HashMap<String,Long> occasion;
+    @Column(columnDefinition = "json")
+    @Type(type = "json")
+    private HashMap<String,Long> audience;
+
     private String description;
-
     private String perfumer;
 
     @Column(columnDefinition = "integer default 0", nullable = false)

@@ -47,15 +47,13 @@ class ItemServiceTest {
     @DisplayName("아이템 등록")
     void test1(){
         Item requestItem = Item.builder()
-                .name("상품")
-                .season("계절").build();
+                .name("상품").build();
 
         itemRepository.save(requestItem);
 
         Assertions.assertEquals(1L,itemRepository.count());
         Item item = itemRepository.findAll().get(0);
         assertEquals("상품", item.getName());
-        assertEquals("계절", item.getSeason());
     }
 
     @Test
@@ -65,7 +63,6 @@ class ItemServiceTest {
         List<Item> requestItems = IntStream.range(0,20)
                 .mapToObj(i -> Item.builder()
                         .name("상품 " +i)
-                        .season("계절 "+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
         ItemSearch itemSearch = ItemSearch.builder()
@@ -87,8 +84,7 @@ class ItemServiceTest {
     void test3(){
         //given
         Item requestItem = Item.builder()
-                .name("상품")
-                .season("계절").build();
+                .name("상품").build();
 
         itemRepository.save(requestItem);
 
@@ -111,7 +107,6 @@ class ItemServiceTest {
 
         Item item = itemRepository.findAll().get(0);
         assertEquals("상품", item.getName());
-        assertEquals("계절", item.getSeason());
         Set<ItemImages> itemImages = item.getImages();
         System.out.println(item.getImages());
     }
@@ -121,8 +116,7 @@ class ItemServiceTest {
     void test4(){
         //given
         Item requestItem = Item.builder()
-                .name("상품")
-                .season("계절").build();
+                .name("상품").build();
 
         itemRepository.save(requestItem);
 
@@ -134,7 +128,6 @@ class ItemServiceTest {
         assertEquals(1L, itemRepository.count());
         Item item = itemRepository.findAll().get(0);
         assertEquals("상품", item.getName());
-        assertEquals("계절", item.getSeason());
 
         assertEquals(1L, itemCommentRepository.count());
         ItemComment itemComment = itemCommentRepository.findAll().get(0);

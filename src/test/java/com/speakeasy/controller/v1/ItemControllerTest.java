@@ -1,14 +1,8 @@
 package com.speakeasy.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.speakeasy.domain.Item;
-import com.speakeasy.domain.ItemComment;
-import com.speakeasy.domain.ItemImages;
-import com.speakeasy.domain.User;
-import com.speakeasy.repository.ItemCommentRepository;
-import com.speakeasy.repository.ItemImgRepository;
-import com.speakeasy.repository.ItemRepository;
-import com.speakeasy.repository.UserRepository;
+import com.speakeasy.domain.*;
+import com.speakeasy.repository.*;
 import com.speakeasy.request.ItemCommentCreate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +41,8 @@ class ItemControllerTest {
 
     @Autowired
     private ItemCommentRepository itemCommentRepository;
-
+    @Autowired
+    private NoteRepository noteRepository;
     @Autowired
     private ItemImgRepository itemImgRepository;
     @Autowired
@@ -59,6 +54,7 @@ class ItemControllerTest {
         itemCommentRepository.deleteAll();
         itemImgRepository.deleteAll();
         userRepository.deleteAll();
+        noteRepository.deleteAll();
     }
 
     @Test
@@ -69,7 +65,6 @@ class ItemControllerTest {
                 .mapToObj(i -> Item.builder()
                         .name("상품" +i)
                         .brand("브랜드"+i)
-                        .season("계절"+i)
                         .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
@@ -92,7 +87,6 @@ class ItemControllerTest {
                 .mapToObj(i -> Item.builder()
                         .name("상품" +i)
                         .brand("브랜드"+i)
-                        .season("계절"+i)
                         .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
@@ -115,16 +109,19 @@ class ItemControllerTest {
                 .mapToObj(i -> Item.builder()
                         .name("상품" +i)
                         .brand("브랜드"+i)
-                        .season("계절"+i)
                         .perfumer("베이스"+i)
                         .build()).collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
-
+        List<Note> requestNotes = IntStream.range(0,20)
+                        .mapToObj(i ->Note.builder()
+                                .name("노트"+i)
+                                .img("이미지"+i)
+                                .build()).collect(Collectors.toList());
+        noteRepository.saveAll(requestNotes);
         //expected
-        mockMvc.perform(get("/items?page=1&size=10&brand=브랜드1,브랜드2")
+        mockMvc.perform(get("/items?page=1&size=10&topNotes=1,2")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].brand").value("브랜드2"))
                 .andDo(print());
 
     }
@@ -136,18 +133,12 @@ class ItemControllerTest {
         Item item = Item.builder()
                 .name("상품")
                 .ratingPoints(50L)
-                .ratingVotes(10L)
                 .scentPoints(55L)
-                .scentVotes(10L)
                 .longevityPoints(30L)
-                .longevityVotes(10L)
                 .sillagePoints(40L)
-                .sillageVotes(10L)
                 .bottlePoints(10L)
-                .bottleVotes(10L)
                 .valueOfMoneyPoints(46L)
-                .valueOfMoneyVotes(10L)
-                .season("계절").build();
+                .votes(10L).build();
 
         itemRepository.save(item);
 
@@ -166,8 +157,7 @@ class ItemControllerTest {
     void test5() throws Exception {
         //given
         Item item = Item.builder()
-                .name("상품")
-                .season("계절").build();
+                .name("상품").build();
 
         itemRepository.save(item);
 
@@ -195,8 +185,7 @@ class ItemControllerTest {
     void test6() throws Exception{
         //given
         Item item = Item.builder()
-                .name("상품")
-                .season("계절").build();
+                .name("상품").build();
         itemRepository.save(item);
 
         User user = User.builder()
@@ -236,8 +225,7 @@ class ItemControllerTest {
     void test7() throws Exception{
         //given
         Item item = Item.builder()
-                .name("상품")
-                .season("계절").build();
+                .name("상품").build();
         itemRepository.save(item);
 
         User user = User.builder()
@@ -283,18 +271,12 @@ class ItemControllerTest {
         Item item = Item.builder()
                 .name("상품")
                 .ratingPoints(50L)
-                .ratingVotes(10L)
                 .scentPoints(55L)
-                .scentVotes(10L)
                 .longevityPoints(30L)
-                .longevityVotes(10L)
                 .sillagePoints(40L)
-                .sillageVotes(10L)
                 .bottlePoints(10L)
-                .bottleVotes(10L)
                 .valueOfMoneyPoints(46L)
-                .valueOfMoneyVotes(10L)
-                .season("계절").build();
+                .votes(10L).build();
 
         itemRepository.save(item);
         mockMvc.perform(get("/items/{itemId}",item.getId()));

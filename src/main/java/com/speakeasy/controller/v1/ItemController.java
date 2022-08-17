@@ -3,10 +3,8 @@ package com.speakeasy.controller.v1;
 
 import com.speakeasy.request.ItemCommentCreate;
 import com.speakeasy.request.ItemSearch;
-import com.speakeasy.response.ItemCommentResponse;
-import com.speakeasy.response.ItemDetailResponse;
-import com.speakeasy.response.ItemImgResponse;
-import com.speakeasy.response.ItemResponse;
+import com.speakeasy.request.ItemSeasonUpdate;
+import com.speakeasy.response.*;
 import com.speakeasy.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,4 +54,10 @@ public class ItemController {
         itemService.commentDelete(id);
         return ResponseEntity.ok(id);
     }
+
+    @PostMapping("/items/{itemId}/season")
+    public ItemSeasonResponse updateSeason(@PathVariable Long id, @ModelAttribute ItemSeasonUpdate itemSeasonUpdate){
+        itemService.updateSeason(id, itemSeasonUpdate);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.speakeasy.service;
 
 
+import com.querydsl.core.Tuple;
 import com.speakeasy.domain.Item;
 import com.speakeasy.domain.ItemComment;
 import com.speakeasy.domain.ItemImages;
@@ -12,6 +13,7 @@ import com.speakeasy.repository.ItemRepository;
 import com.speakeasy.repository.UserRepository;
 import com.speakeasy.request.ItemCommentCreate;
 import com.speakeasy.request.ItemSearch;
+import com.speakeasy.request.ItemSeasonUpdate;
 import com.speakeasy.response.ItemCommentResponse;
 import com.speakeasy.response.ItemDetailResponse;
 import com.speakeasy.response.ItemImgResponse;
@@ -46,6 +48,7 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public ItemDetailResponse get(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(ItemNotFound::new);
@@ -116,5 +119,16 @@ public class ItemService {
 
     public void updateView(Long itemId) {
         itemRepository.updateView(itemId);
+    }
+
+    public void updateSeason(Long id, ItemSeasonUpdate itemSeasonUpdate) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(ItemNotFound::new);
+        HashMap<String, Long> season = item.getSeason();
+
+        Long votes = season.get("spring");
+        season.put("spring",votes+1L);
+
+
     }
 }

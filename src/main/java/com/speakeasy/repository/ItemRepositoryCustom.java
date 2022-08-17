@@ -1,5 +1,6 @@
 package com.speakeasy.repository;
 
+import com.querydsl.core.Tuple;
 import com.speakeasy.domain.Item;
 import com.speakeasy.request.ItemSearch;
 import com.speakeasy.response.ItemResponse;
@@ -12,6 +13,7 @@ import java.util.List;
 public interface ItemRepositoryCustom {
 
     List<Item> getList(ItemSearch itemSearch);
+
     void updateView(Long itemId);
 
 

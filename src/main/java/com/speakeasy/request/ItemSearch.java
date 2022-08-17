@@ -20,16 +20,23 @@ public class ItemSearch {
 
     private Integer page;
     private Integer size;
+    private Integer gender;
+    private float goePoints;
+    private float loePoints;
+    private List<Long> topNotes;
+//    private List<Long> heartNotes;
+//    private List<Long> baseNotes;
 
-    private List<String> topNotes;
     private List<String> brand;
     private List<String> searchKey;
 
 
     @Builder
-    public ItemSearch(Integer page, Integer size, List<String> topNotes, List<String> brand, List<String> searchKey) {
+    public ItemSearch(Integer page, Integer size, float goePoints, float loePoints, List<Long> topNotes, List<String> brand, List<String> searchKey) {
         this.page = page == null ? 1 : page;
         this.size = size == null ? 10 :size;
+        this.goePoints = goePoints;
+        this.loePoints = loePoints;
         this.topNotes = topNotes;
         this.brand = brand;
         this.searchKey = searchKey;

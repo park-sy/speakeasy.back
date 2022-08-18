@@ -5,7 +5,7 @@ package com.speakeasy.controller.v1;
 
 
 import com.google.gson.Gson;
-import com.speakeasy.domain.user.User;
+import com.speakeasy.domain.User;
 import com.speakeasy.response.KakaoAuth;
 import com.speakeasy.response.KakaoProfile;
 import com.speakeasy.service.KakaoService;
@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -46,7 +48,7 @@ public class SocialController {
 
 
     /**
-     * 카카카오 로그인 페이지, rest api 형식이므로 버튼만 나오도록
+     * 카카오 로그인 페이지, rest api 형식이므로 버튼만 나오도록
      */
     @GetMapping
     public ModelAndView socialLogin(ModelAndView mav) {
@@ -57,7 +59,6 @@ public class SocialController {
                 .append("?client_id=").append(kakaoClientId)
                 .append("&response_type=code")
                 .append("&redirect_uri=").append(baseUrl).append(kakaoRedirect);
-
         mav.addObject("loginUrl", loginUrl);
 //        mav.setViewName("social/login");
         return mav;
@@ -67,17 +68,22 @@ public class SocialController {
      * 카카오 인증 완료 후 리다이렉트 화면
      */
     @GetMapping(value = "/kakao")
-    public @ResponseBody String redirectKakao(@RequestParam String code) {
+    public @ResponseBody void redirectKakao(@RequestParam String code, HttpServletResponse response) throws IOException {
 //        mav.addObject("authInfo", kakaoService.getKakaoTokenInfo(code));
 //        mav.setViewName("social/redirectKakao");
         KakaoAuth kakaoAuth = kakaoService.getKakaoTokenInfo(code);
-
         KakaoProfile profile =kakaoService.getKakaoProfile(kakaoAuth.getAccess_token());
         System.out.println(profile);
-        Optional<User> user= signService.getByUidAndProvider("kakao",profile);
-        // 이후 만약 null일 경우, 회원가입으로 이동 아닐 경우 로그인 진행
-
-        return kakaoAuth.getAccess_token();
+        Optional<User> user= signService.getByEmailAndProvider("kakao",profile);
+        System.out.println(user);
+        // 이후 만약 empty일 경우, 회원가입으로 이동 아닐 경우 로그인 진행
+        if(user.isEmpty()){
+            response.sendRedirect("http://localhost:3000/join");
+//            return kakaoAuth.getAccess_token()+" 가입화면 redirect";
+        }
+        else{
+           System.out.println("로그인 처리");//로그인 처리
+        }
     }
 
 }

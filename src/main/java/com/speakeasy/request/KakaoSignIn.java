@@ -3,21 +3,24 @@ package com.speakeasy.request;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 
-@Getter
 @Setter
-public class UserSignIn {
+@Getter
+@ToString
+public class KakaoSignIn {
     @NotBlank(message = "아이디를 입력해주세요")
     private String email;
 
-    @NotBlank(message = "비밀번호를 입력해주세요")
-    private String password;
+    @NotBlank(message = "소셜 제공자를 입력해주세요")
+    private String provider;
+
+
     @Builder
-    public UserSignIn(String email, String password) {
+    public KakaoSignIn(String email, String provider) {
         this.email = email;
-        this.password = password;
+        this.provider = provider;
     }
 }
-

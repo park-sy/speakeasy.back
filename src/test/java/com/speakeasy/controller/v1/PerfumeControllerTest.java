@@ -5,7 +5,7 @@ import com.speakeasy.domain.perfume.Note;
 import com.speakeasy.domain.perfume.Perfume;
 import com.speakeasy.domain.perfume.PerfumeComment;
 import com.speakeasy.domain.perfume.PerfumeImages;
-import com.speakeasy.domain.user.User;
+import com.speakeasy.domain.User;
 import com.speakeasy.repository.*;
 import com.speakeasy.repository.perfume.NoteRepository;
 import com.speakeasy.repository.perfume.PerfumeCommentRepository;
@@ -195,7 +195,7 @@ class PerfumeControllerTest {
         perfumeRepository.save(perfume);
 
         User user = User.builder()
-                .uid("userid")
+                .email("userid")
                 .password("123")
                 .name("이름").build();
         userRepository.save(user);
@@ -235,7 +235,7 @@ class PerfumeControllerTest {
         perfumeRepository.save(perfume);
 
         User user = User.builder()
-                .uid("userid")
+                .email("userid")
                 .password("123")
                 .name("이름").build();
         userRepository.save(user);

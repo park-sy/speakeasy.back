@@ -1,6 +1,6 @@
 package com.speakeasy.domain.perfume;
 
-import com.speakeasy.domain.user.User;
+import com.speakeasy.domain.User;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

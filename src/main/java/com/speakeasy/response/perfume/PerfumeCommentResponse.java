@@ -26,7 +26,7 @@ public class PerfumeCommentResponse {
        this.comment = perfumeComment.getComment();
        this.createdDate = perfumeComment.getCreatedDate();
        this.modifiedDate =perfumeComment.getModifiedDate();
-       this.uid = perfumeComment.getUser().getUid();
+       this.uid = perfumeComment.getUser().getName();
        this.perfumeId = perfumeComment.getPerfume().getId();
    }
 

@@ -2,7 +2,7 @@ package com.speakeasy.request.perfume;
 
 import com.speakeasy.domain.perfume.Perfume;
 import com.speakeasy.domain.perfume.PerfumeComment;
-import com.speakeasy.domain.user.User;
+import com.speakeasy.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

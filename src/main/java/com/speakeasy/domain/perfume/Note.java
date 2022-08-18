@@ -1,4 +1,4 @@
-package com.speakeasy.domain;
+package com.speakeasy.domain.perfume;
 
 import lombok.*;
 
@@ -29,6 +29,6 @@ public class Note {
     private List<Note> children = new ArrayList<>();
 
 //    @ManyToOne
-//    @JoinColumn(name = "item_id")
-//    private Item item;
+//    @JoinColumn(name = "perfume_id")
+//    private Perfume perfume;
 }

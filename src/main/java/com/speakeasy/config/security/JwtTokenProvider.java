@@ -1,6 +1,5 @@
 package com.speakeasy.config.security;
 
-import com.speakeasy.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

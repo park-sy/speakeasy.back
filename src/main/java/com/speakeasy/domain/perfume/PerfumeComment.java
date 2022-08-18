@@ -1,5 +1,6 @@
-package com.speakeasy.domain;
+package com.speakeasy.domain.perfume;
 
+import com.speakeasy.domain.User;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -13,7 +14,7 @@ import java.util.List;
 @Getter  //getter 자동 선언
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PUBLIC)  //인자없는 생성자를 자동 생성
-public class ItemComment {
+public class PerfumeComment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -28,8 +29,8 @@ public class ItemComment {
     private String modifiedDate;
 
     @ManyToOne
-    @JoinColumn(name = "item_id")
-    private Item item;
+    @JoinColumn(name = "perfume_id")
+    private Perfume perfume;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -37,11 +38,11 @@ public class ItemComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    private ItemComment parent;
+    private PerfumeComment parent;
 
     @Builder.Default
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
-    private List<ItemComment> children = new ArrayList<>();
+    private List<PerfumeComment> children = new ArrayList<>();
 
     public void edit(String comment) {
         this.comment = comment;

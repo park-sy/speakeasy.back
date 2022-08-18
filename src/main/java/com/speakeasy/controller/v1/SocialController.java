@@ -4,24 +4,16 @@ package com.speakeasy.controller.v1;
 // import 생략
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.speakeasy.domain.User;
-import com.speakeasy.request.KakaoSignIn;
-import com.speakeasy.request.UserSignIn;
 import com.speakeasy.response.KakaoAuth;
 import com.speakeasy.response.KakaoProfile;
-import com.speakeasy.response.TokenResponse;
 import com.speakeasy.service.KakaoService;
 import com.speakeasy.service.SignService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

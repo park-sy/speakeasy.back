@@ -1,4 +1,4 @@
-package com.speakeasy.domain;
+package com.speakeasy.domain.perfume;
 
 
 import lombok.*;
@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter  //getter 자동 선언
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PUBLIC)  //인자없는 생성자를 자동 생성
-public class ItemImages {
+public class PerfumeImages {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -19,6 +19,6 @@ public class ItemImages {
     private String newFileName;
 
     @ManyToOne
-    @JoinColumn(name = "item_id")
-    private Item item;
+    @JoinColumn(name = "perfume_id")
+    private Perfume perfume;
 }

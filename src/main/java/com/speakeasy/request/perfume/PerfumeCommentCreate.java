@@ -1,7 +1,7 @@
-package com.speakeasy.request;
+package com.speakeasy.request.perfume;
 
-import com.speakeasy.domain.Item;
-import com.speakeasy.domain.ItemComment;
+import com.speakeasy.domain.perfume.Perfume;
+import com.speakeasy.domain.perfume.PerfumeComment;
 import com.speakeasy.domain.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 @Builder
-public class ItemCommentCreate {
+public class PerfumeCommentCreate {
 
     private Long id;
     private String comment;
@@ -25,20 +25,20 @@ public class ItemCommentCreate {
     private Long parentID;
     private User user;
 
-    private ItemComment parent = null;
-    private Item item;
+    private PerfumeComment parent = null;
+    private Perfume perfume;
 
 
-    public ItemComment toEntity(){
-        ItemComment itemComment = ItemComment.builder()
+    public PerfumeComment toEntity(){
+        PerfumeComment perfumeComment = PerfumeComment.builder()
                 .id(id)
                 .comment(comment)
                 .createdDate(createdDate)
                 .modifiedDate(modifiedDate)
                 .user(user)
                 .parent(parent)
-                .item(item)
+                .perfume(perfume)
                 .build();
-        return itemComment;
+        return perfumeComment;
     }
 }

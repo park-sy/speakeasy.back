@@ -8,12 +8,10 @@ import com.speakeasy.repository.perfume.PerfumeCommentRepository;
 import com.speakeasy.repository.perfume.PerfumeImgRepository;
 import com.speakeasy.repository.perfume.PerfumeRepository;
 import com.speakeasy.repository.UserRepository;
+import com.speakeasy.repository.perfume.PerfumeVoteRepository;
 import com.speakeasy.request.perfume.PerfumeCommentCreate;
 import com.speakeasy.request.perfume.PerfumeSearch;
-import com.speakeasy.response.perfume.PerfumeCommentResponse;
-import com.speakeasy.response.perfume.PerfumeDetailResponse;
-import com.speakeasy.response.perfume.PerfumeImgResponse;
-import com.speakeasy.response.perfume.PerfumeResponse;
+import com.speakeasy.response.perfume.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,13 +31,11 @@ public class PerfumeService {
     private final PerfumeRepository perfumeRepository;
     private final PerfumeCommentRepository perfumeCommentRepository;
     private final PerfumeImgRepository perfumeImgRepository;
-    private final UserRepository userRepository;
+    private final PerfumeVoteRepository perfumeVoteRepository;
 
 
-    public List<PerfumeResponse> getList(PerfumeSearch perfumeSearch){
-        return perfumeRepository.getList(perfumeSearch).stream()
-                .map(PerfumeResponse::new)
-                .collect(Collectors.toList());
+    public List<PerfumeResponse> getList(PerfumeSearch perfumeSearch) {
+        return perfumeRepository.getList(perfumeSearch);
     }
 
     @Transactional
@@ -78,13 +74,7 @@ public class PerfumeService {
                     .orElseThrow(PerfumeNotFound::new);
             create.setParent(parent);
         }
-
-        //User user = userRepository.findBy(userId);
-
-
         create.setPerfume(perfume);
-        //create.setUser(user);
-
         PerfumeComment perfumeComment = create.toEntity();
         perfumeCommentRepository.save(perfumeComment);
 
@@ -98,11 +88,7 @@ public class PerfumeService {
         perfumeComment.edit(edit.getComment());
     }
 
-//    public void commentDelete(Long id) {
-//        PerfumeComment perfumeComment = perfumeCommentRepository.findById(id)
-//                .orElseThrow(PerfumeNotFound::new);
-//        perfumeCommentRepository.delete(perfumeComment);
-//    }
+
     @Transactional
     public void commentDelete(Long id) {
         PerfumeComment perfumeComment = perfumeCommentRepository.findById(id)
@@ -115,14 +101,11 @@ public class PerfumeService {
         perfumeRepository.updateView(perfumeId);
     }
 
-//    public void updateSeason(Long id, PerfumeSeasonUpdate perfumeSeasonUpdate) {
-//        Perfume perfume = perfumeRepository.findById(id)
-//                .orElseThrow(PerfumeNotFound::new);
-//        HashMap<String, Long> season = perfume.getSeason();
-//
-//        Long votes = season.get("spring");
-//        season.put("spring",votes+1L);
-//
-//
-//    }
+
+    public List<PerfumeVoteResponse> getVote(Long id){
+        return perfumeVoteRepository.getVote(id);
+    }
+
+
+
 }

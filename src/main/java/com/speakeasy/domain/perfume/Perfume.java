@@ -43,33 +43,6 @@ public class Perfume {
             ,inverseJoinColumns = @JoinColumn(name = "note_id"))
     private Set<Note> baseNotes;
 
-    @Builder.Default
-    private Long ratingPoints = 0L;
-    @Builder.Default
-    private Long scentPoints= 0L;
-    @Builder.Default
-    private Long longevityPoints= 0L;
-    @Builder.Default
-    private Long sillagePoints= 0L;
-    @Builder.Default
-    private Long bottlePoints= 0L;
-    @Builder.Default
-    private Long valueOfMoneyPoints= 0L;
-    @Builder.Default
-    private Long votes= 0L;
-
-    @Column(columnDefinition = "json")
-    @Type(type = "json")
-    private HashMap<String,Long> type;
-    @Column(columnDefinition = "json")
-    @Type(type = "json")
-    private HashMap<String,Long> season;
-    @Column(columnDefinition = "json")
-    @Type(type = "json")
-    private HashMap<String,Long> occasion;
-    @Column(columnDefinition = "json")
-    @Type(type = "json")
-    private HashMap<String,Long> audience;
 
     private String description;
     private String perfumer;
@@ -85,14 +58,14 @@ public class Perfume {
     @OrderBy("id asc")
     private Set<PerfumeImages> images;
 
-//    @Builder //Builder 패턴 사용
-//    public Perfume(String name, String topNotes, String brand, String season, String perfumer) {
-//        this.name = name;
-//        this.brand = brand;
-//        this.topNotes = topNotes;
-//        this.season = season;
-//        this.perfumer = perfumer;
-//    }
+    @OneToMany(mappedBy = "perfume", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OrderBy("id asc")
+    private Set<PerfumeTypeNote> type;
 
+    private String season;
+    private String occasion;
+    private String audience;
+    private Double points;
+    private Long votes;
 
 }

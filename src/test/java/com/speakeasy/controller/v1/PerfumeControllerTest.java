@@ -1,16 +1,10 @@
 package com.speakeasy.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.speakeasy.domain.perfume.Note;
-import com.speakeasy.domain.perfume.Perfume;
-import com.speakeasy.domain.perfume.PerfumeComment;
-import com.speakeasy.domain.perfume.PerfumeImages;
+import com.speakeasy.domain.perfume.*;
 import com.speakeasy.domain.User;
 import com.speakeasy.repository.*;
-import com.speakeasy.repository.perfume.NoteRepository;
-import com.speakeasy.repository.perfume.PerfumeCommentRepository;
-import com.speakeasy.repository.perfume.PerfumeImgRepository;
-import com.speakeasy.repository.perfume.PerfumeRepository;
+import com.speakeasy.repository.perfume.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +47,12 @@ class PerfumeControllerTest {
     private PerfumeImgRepository perfumeImgRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PerfumeVoteRepository perfumeVoteRepository;
+    @Autowired
+    private PerfumeScoreRepository perfumeScoreRepository;
+    @Autowired
+    private ScoreRepository scoreRepository;
 
     @BeforeEach
     void clean(){
@@ -61,6 +61,9 @@ class PerfumeControllerTest {
         perfumeImgRepository.deleteAll();
         userRepository.deleteAll();
         noteRepository.deleteAll();
+        perfumeVoteRepository.deleteAll();
+        perfumeScoreRepository.deleteAll();
+        scoreRepository.deleteAll();
     }
 
     @Test
@@ -116,8 +119,10 @@ class PerfumeControllerTest {
                         .name("상품" +i)
                         .brand("브랜드"+i)
                         .perfumer("베이스"+i)
+                        .votes(1L)
                         .build()).collect(Collectors.toList());
         perfumeRepository.saveAll(requestPerfumes);
+
         List<Note> requestNotes = IntStream.range(0,20)
                         .mapToObj(i ->Note.builder()
                                 .name("노트"+i)
@@ -138,13 +143,14 @@ class PerfumeControllerTest {
         //given
         Perfume perfume = Perfume.builder()
                 .name("상품")
-                .ratingPoints(50L)
-                .scentPoints(55L)
-                .longevityPoints(30L)
-                .sillagePoints(40L)
-                .bottlePoints(10L)
-                .valueOfMoneyPoints(46L)
-                .votes(10L).build();
+//                .ratingPoints(50L)
+//                .scentPoints(55L)
+//                .longevityPoints(30L)
+//                .sillagePoints(40L)
+//                .bottlePoints(10L)
+//                .valueOfMoneyPoints(46L)
+//                .votes(10L)
+                .build();
 
         perfumeRepository.save(perfume);
 
@@ -276,13 +282,14 @@ class PerfumeControllerTest {
         //given
         Perfume perfume = Perfume.builder()
                 .name("상품")
-                .ratingPoints(50L)
-                .scentPoints(55L)
-                .longevityPoints(30L)
-                .sillagePoints(40L)
-                .bottlePoints(10L)
-                .valueOfMoneyPoints(46L)
-                .votes(10L).build();
+//                .ratingPoints(50L)
+//                .scentPoints(55L)
+//                .longevityPoints(30L)
+//                .sillagePoints(40L)
+//                .bottlePoints(10L)
+//                .valueOfMoneyPoints(46L)
+//                .votes(10L)
+                .build();
 
         perfumeRepository.save(perfume);
         mockMvc.perform(get("/perfumes/{perfumeId}",perfume.getId()));
@@ -297,5 +304,81 @@ class PerfumeControllerTest {
                 .andDo(print());
 
 
+    }
+
+    @Test
+    @DisplayName("향수 상세정보, 투포수 가져오기")
+    void test9() throws Exception {
+        //given
+        Perfume perfume = Perfume.builder()
+                .name("상품")
+                .build();
+
+        perfumeRepository.save(perfume);
+
+        List<Note> requestNotes = IntStream.range(0,20)
+                .mapToObj(i ->Note.builder()
+                        .name("노트"+i)
+                        .img("이미지"+i)
+                        .build()).collect(Collectors.toList());
+        noteRepository.saveAll(requestNotes);
+
+        List<PerfumeVote> perfumeVotes = IntStream.range(0,20)
+                .mapToObj(i ->PerfumeVote.builder()
+                    .name("노트"+i)
+                    .perfume(perfume).note(requestNotes.get(i%6))
+                    .build()).collect(Collectors.toList());
+        perfumeVoteRepository.saveAll(perfumeVotes);
+
+
+        //expected
+        mockMvc.perform(get("/perfumes/{perfumeId}/vote",perfume.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("향수 필터링, 점수 필터")
+    void test10() throws Exception {
+        //given
+        List<Perfume> requestPerfumes = IntStream.range(0,20)
+                .mapToObj(i -> Perfume.builder()
+                        .name("상품" +i)
+                        .brand("브랜드"+i)
+                        .perfumer("베이스"+i)
+                        .votes(1L)
+                        .build()).collect(Collectors.toList());
+        perfumeRepository.saveAll(requestPerfumes);
+
+        List<Note> requestNotes = IntStream.range(0,20)
+                .mapToObj(i ->Note.builder()
+                        .name("노트"+i)
+                        .img("이미지"+i)
+                        .build()).collect(Collectors.toList());
+        noteRepository.saveAll(requestNotes);
+
+        List<Score> score = IntStream.range(0,4)
+                .mapToObj(i ->Score.builder()
+                        .name("score"+i)
+                        .build()).collect(Collectors.toList());
+        scoreRepository.saveAll(score);
+
+        List<PerfumeScore> perfumeScores = IntStream.range(0,100)
+                .mapToObj(i ->PerfumeScore.builder()
+                        .name("점수"+i)
+                        .score(score.get(i%4))
+                        .perfume(requestPerfumes.get(i%5))
+                        .point(i%10)
+                        .build()).collect(Collectors.toList());
+        perfumeScoreRepository.saveAll(perfumeScores);
+
+
+        //expected
+        mockMvc.perform(get("/perfumes/temp?page=1&size=10&type=1,2")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 }

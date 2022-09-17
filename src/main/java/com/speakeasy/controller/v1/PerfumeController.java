@@ -3,10 +3,8 @@ package com.speakeasy.controller.v1;
 
 import com.speakeasy.request.perfume.PerfumeCommentCreate;
 import com.speakeasy.request.perfume.PerfumeSearch;
-import com.speakeasy.response.perfume.PerfumeCommentResponse;
-import com.speakeasy.response.perfume.PerfumeDetailResponse;
-import com.speakeasy.response.perfume.PerfumeImgResponse;
-import com.speakeasy.response.perfume.PerfumeResponse;
+import com.speakeasy.request.perfume.PerfumeVoteUpdate;
+import com.speakeasy.response.perfume.*;
 import com.speakeasy.service.PerfumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,10 +54,9 @@ public class PerfumeController {
         return ResponseEntity.ok(id);
     }
 
-//    @PostMapping("/perfumes/{perfumeId}/season")
-//    public PerfumeSeasonResponse updateSeason(@PathVariable Long id, @ModelAttribute PerfumeSeasonUpdate perfumeSeasonUpdate){
-//        perfumeService.updateSeason(id, perfumeSeasonUpdate);
-//        return
-//    }
+    @GetMapping("/perfumes/{perfumeId}/vote")
+    public List<PerfumeVoteResponse> updateVote(@PathVariable Long perfumeId){
+        return perfumeService.getVote(perfumeId);
+    }
 
 }

@@ -1,4 +1,3 @@
-
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -11,4 +10,23 @@ spring:
     show-sql: true
     hibernate:
       format_sql: true
-      ddl-auto: create
+      ddl-auto: create  # 서버 재부팅 시 DB에 저장된 파일 초기화하지 않음(초기화 : update -> create)
+  jwt:
+    secret: govlepel@$&
+  social:
+    kakao:
+      client_id:  bcd243634170a5ed5a8a1bdcafc169af
+      redirect: /social/login/kakao
+      url:
+        login: https://kauth.kakao.com/oauth/authorize
+        token: https://kauth.kakao.com/oauth/token
+        profile: https://kapi.kakao.com/v2/user/me
+  url:
+    base: http://localhost:8080
+  freemarker:
+    template-loader-path: classpath:/templates
+    suffix: .ftl
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 3000 #ms connection timeout

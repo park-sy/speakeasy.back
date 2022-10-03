@@ -1,4 +1,6 @@
-# speakeasy.backType Commit Rule
+# Speakeasy Server 구성
+
+## speakeasy.backType Commit Rule
 
 feat : 새로운 기능 추가, 기존의 기능을 요구 사항에 맞추어 수정
 <br>
@@ -19,6 +21,11 @@ refactor : 기능의 변화가 아닌 코드 리팩터링 ex) 변수 이름 변�
 test : 테스트 코드 추가/수정
 <br>
 release : 버전 릴리즈
+
+
+## DB 구성
+
+![erd](https://user-images.githubusercontent.com/53611554/193597816-83ea76a7-8f08-41df-b3bb-2682dcb308b3.png)
 
 
 ## 쿼리 요구 사항  

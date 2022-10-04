@@ -28,7 +28,7 @@ release : 버전 릴리즈
 ![erd](https://user-images.githubusercontent.com/53611554/193597816-83ea76a7-8f08-41df-b3bb-2682dcb308b3.png)
 
 
-## 쿼리 요구 사항  
+## 주요 쿼리 요구 사항  
 
 유저 투표 기반의 필터 적용
 

@@ -60,20 +60,20 @@ public class PerfumeRepositoryImpl implements PerfumeRepositoryCustom{
 
     //BooleanExpression을 통한 동적 쿼리문 작성
 
+    //정렬 기준 선택, 기본값은 최신순 정렬
     private OrderSpecifier<?> sortOrder(Integer order){
         if(order == 1) return perfumeScore.point.avg().desc();
         else if (order == 2) return perfume.name.asc();
         return perfume.id.desc();
     }
-    private BooleanExpression eqSeason(List<String> season){
-        if(season == null) return null;
-        return perfume.season.in(season);
-    }
+    //
+
     private BooleanExpression eqBrand(List<String> brand){
         if(brand == null) return null;
         return perfume.brand.in(brand);
     }
 
+    //향수 노트 필터 선택
     private BooleanExpression eqType(List<Long> type){
         if(type == null) return null;
 
@@ -90,8 +90,30 @@ public class PerfumeRepositoryImpl implements PerfumeRepositoryCustom{
         return perfume.id.in(id);
     }
 
+    //향수 계절 필터 선택
+    private BooleanExpression eqSeason(List<String> season){
+        if(season == null) return null;
+
+        List<Tuple> ids = jpaQueryFactory.select(perfumeVote.perfume.id,perfumeVote.value.count()).from(perfumeVote)
+                .where(perfumeVote.value.in(season))
+                .groupBy(perfumeVote.perfume,perfumeVote.value)
+                .having(perfumeVote.value.count().goe(0.25))
+                .fetch();
+        List<Long> id = new ArrayList<>();
+        for (Tuple t : ids){
+            id.add(t.get(perfumeVote.perfume.id));
+        }
+        return perfume.season.in(season);
+    }
     private BooleanExpression eqOccasion(List<String> occasion){
         if(occasion == null) return null;
+
+        List<Tuple> ids = jpaQueryFactory.select(perfumeVote.perfume.id,perfumeVote.value.count()).from(perfumeVote)
+                .where(perfumeVote.value.in(occasion))
+                .groupBy(perfumeVote.perfume,perfumeVote.value)
+                .having(perfumeVote.value.count().goe(0.25))
+                .fetch();
+
         return perfume.occasion.in(occasion);
     }
 
